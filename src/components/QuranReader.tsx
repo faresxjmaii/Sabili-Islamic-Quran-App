@@ -24,7 +24,7 @@ function toArabicIndicNumber(value: number): string {
 
 function getCleanAyahText(text: string): string {
   return text
-    .replace(/[\u06D6-\u06DD]/g, '')
+    .replace(/[\u06D6-\u06ED]/g, '')
     .replace(/\s+/g, ' ')
     .trim();
 }
