@@ -68,6 +68,73 @@
   .font-qaloun {
     font-family: "qaloon10", "Amiri Quran", "Amiri", "Noto Naskh Arabic", serif;
     line-height: 2.45;
+    letter-spacing: 0;
+  }
+
+  .quran-ayah-text {
+    font-size: clamp(1.82rem, 7.7vw, 2.16rem);
+    line-height: 2.55;
+    letter-spacing: 0;
+    word-spacing: 0.05em;
+    text-wrap: pretty;
+  }
+
+  .quran-basmala-text {
+    font-size: clamp(2rem, 8.4vw, 2.3rem);
+    line-height: 2.35;
+    letter-spacing: 0;
+    word-spacing: 0.04em;
+  }
+
+  /* Mobile-optimized Quranic text with better spacing */
+  @media (max-width: 640px) {
+    .font-qaloun {
+      line-height: 2.55;
+      letter-spacing: 0;
+    }
+  }
+
+  /* Tablet optimization */
+  @media (min-width: 641px) and (max-width: 1024px) {
+    .font-qaloun {
+      line-height: 2.85;
+    }
+  }
+
+  @media (min-width: 640px) {
+    .quran-ayah-text {
+      font-size: 2.45rem;
+      line-height: 2.85;
+      word-spacing: 0.04em;
+    }
+
+    .quran-basmala-text {
+      font-size: 2.45rem;
+      line-height: 2.5;
+    }
+  }
+
+  @media (min-width: 768px) {
+    .quran-ayah-text {
+      font-size: 2.65rem;
+      line-height: 2.9;
+    }
+
+    .quran-basmala-text {
+      line-height: 2.6;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .quran-ayah-text {
+      font-size: 2.85rem;
+      line-height: 2.95;
+    }
+
+    .quran-basmala-text {
+      font-size: 2.8rem;
+      line-height: 2.7;
+    }
   }
 
   /* Glass card */

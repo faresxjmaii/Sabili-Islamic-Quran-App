@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Navigate, Route, Routes } from 'react-router-dom';
 import { QuranAudioProvider } from './app/QuranAudioProvider';
 import { SettingsProvider } from './app/SettingsContext';
+import { ErrorBoundary } from './components/ErrorBoundary';
 import BottomNav from './components/BottomNav';
 import Footer from './components/Footer';
 import QuranMiniPlayer from './components/QuranMiniPlayer';
@@ -19,36 +20,38 @@ import SurahDetail from './pages/SurahDetail';
 
 export default function App() {
   return (
-    <SettingsProvider>
-      <QuranAudioProvider>
-        <Router>
-          <div className="min-h-screen overflow-x-hidden bg-[#07111F] text-[#F8FAFC]">
-            <div className="relative min-h-screen overflow-hidden bg-[#07111F]">
-              <div className="app-atmosphere pointer-events-none fixed inset-0 z-0" aria-hidden="true" />
-              <TopNav />
-              <main className="relative z-10">
-                <Routes>
-                  <Route path="/" element={<Home />} />
-                  <Route path="/prayer" element={<PrayerTimesPage />} />
-                  <Route path="/quran" element={<QuranPage />} />
-                  <Route path="/quran/hizb/:hizbNumber" element={<HizbDetail />} />
-                  <Route path="/quran/:surahId" element={<SurahDetail />} />
-                  <Route path="/adhkar" element={<AdhkarPage />} />
-                  <Route path="/adhkar/:category" element={<AdhkarDetail />} />
-                  <Route path="/qibla" element={<QiblaPage />} />
-                  <Route path="/more" element={<MorePage />} />
-                  <Route path="/settings" element={<SettingsPage />} />
-                  <Route path="/about" element={<AboutPage />} />
-                  <Route path="*" element={<Navigate to="/" replace />} />
-                </Routes>
-              </main>
-              <Footer />
-              <QuranMiniPlayer />
+    <ErrorBoundary>
+      <SettingsProvider>
+        <QuranAudioProvider>
+          <Router>
+            <div className="min-h-screen overflow-x-hidden bg-[#07111F] text-[#F8FAFC]">
+              <div className="relative min-h-screen overflow-hidden bg-[#07111F]">
+                <div className="app-atmosphere pointer-events-none fixed inset-0 z-0" aria-hidden="true" />
+                <TopNav />
+                <main className="relative z-10">
+                  <Routes>
+                    <Route path="/" element={<Home />} />
+                    <Route path="/prayer" element={<PrayerTimesPage />} />
+                    <Route path="/quran" element={<QuranPage />} />
+                    <Route path="/quran/hizb/:hizbNumber" element={<HizbDetail />} />
+                    <Route path="/quran/:surahId" element={<SurahDetail />} />
+                    <Route path="/adhkar" element={<AdhkarPage />} />
+                    <Route path="/adhkar/:category" element={<AdhkarDetail />} />
+                    <Route path="/qibla" element={<QiblaPage />} />
+                    <Route path="/more" element={<MorePage />} />
+                    <Route path="/settings" element={<SettingsPage />} />
+                    <Route path="/about" element={<AboutPage />} />
+                    <Route path="*" element={<Navigate to="/" replace />} />
+                  </Routes>
+                </main>
+                <Footer />
+                <QuranMiniPlayer />
+              </div>
+              <BottomNav />
             </div>
-            <BottomNav />
-          </div>
-        </Router>
-      </QuranAudioProvider>
-    </SettingsProvider>
+          </Router>
+        </QuranAudioProvider>
+      </SettingsProvider>
+    </ErrorBoundary>
   );
 }
