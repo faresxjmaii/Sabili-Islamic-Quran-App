@@ -1,7 +1,9 @@
 import { Bookmark, ChevronLeft, Headphones, Hash, Layers, Pause, Play, RotateCcw, ScrollText } from 'lucide-react';
+import { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { useQuranAudio } from '../app/useQuranAudio';
 import AyahAudioButton from './AyahAudioButton';
+import { getQuranDisplayItems } from '../services/quranDisplayService';
 import type { QalounAyah } from '../services/quranService';
 
 type QuranReaderProps = {
@@ -22,8 +24,9 @@ function ReaderStat({ icon: Icon, label }: { icon: typeof Hash; label: string })
 }
 
 export default function QuranReader({ title, subtitle, badge, verses, onBookmark }: QuranReaderProps) {
-  const firstVerse = verses[0];
-  const surahCount = new Set(verses.map((verse) => verse.sura_no)).size;
+  const { audioVerses, displayItems } = useMemo(() => getQuranDisplayItems(verses), [verses]);
+  const firstVerse = audioVerses[0];
+  const surahCount = new Set(audioVerses.map((verse) => verse.sura_no)).size;
   const {
     status,
     currentVerse,
@@ -38,11 +41,12 @@ export default function QuranReader({ title, subtitle, badge, verses, onBookmark
     isCurrentVerse,
   } = useQuranAudio();
   const currentVerseInReader = Boolean(
-    currentVerse && verses.some((verse) => verse.sura_no === currentVerse.sura_no && verse.aya_no === currentVerse.aya_no)
+    currentVerse &&
+      audioVerses.some((verse) => verse.sura_no === currentVerse.sura_no && verse.aya_no === currentVerse.aya_no)
   );
   const readerIsPlaying = currentVerseInReader && status === 'playing';
   const lastPlayedVerse = lastPlayed
-    ? verses.find((verse) => verse.sura_no === lastPlayed.surahNumber && verse.aya_no === lastPlayed.ayahNumber)
+    ? audioVerses.find((verse) => verse.sura_no === lastPlayed.surahNumber && verse.aya_no === lastPlayed.ayahNumber)
     : undefined;
   const playLabel = badge.toLowerCase().includes('hizb') ? 'Play Hizb' : 'Play Surah';
 
@@ -74,7 +78,7 @@ export default function QuranReader({ title, subtitle, badge, verses, onBookmark
             </h1>
             <p className="mx-auto mt-3 max-w-2xl text-sm leading-6 text-[#B8C4D6]">{subtitle}</p>
             <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
-              <ReaderStat icon={Hash} label={`${verses.length} ayahs`} />
+              <ReaderStat icon={Hash} label={`${audioVerses.length} ayahs`} />
               <ReaderStat icon={Layers} label={`${surahCount} surah${surahCount > 1 ? 's' : ''}`} />
               {firstVerse ? <ReaderStat icon={ScrollText} label={`Starts page ${firstVerse.page}`} /> : null}
             </div>
@@ -86,7 +90,7 @@ export default function QuranReader({ title, subtitle, badge, verses, onBookmark
                     togglePlayPause();
                     return;
                   }
-                  playQueue(verses, 0);
+                  playQueue(audioVerses, 0);
                 }}
                 className="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl border border-[#F2C66D]/35 bg-[linear-gradient(135deg,#F2C66D,#D9B45A)] px-5 text-sm font-bold text-[#07111F] shadow-[0_16px_36px_rgba(217,180,90,0.16)]"
                 type="button"
@@ -97,7 +101,7 @@ export default function QuranReader({ title, subtitle, badge, verses, onBookmark
 
               {lastPlayedVerse ? (
                 <button
-                  onClick={() => playVerse(lastPlayedVerse, verses)}
+                  onClick={() => playVerse(lastPlayedVerse, audioVerses)}
                   className="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/[0.045] px-5 text-sm font-bold text-[#DCE5EF] transition hover:bg-white/[0.08]"
                   type="button"
                 >
@@ -136,59 +140,84 @@ export default function QuranReader({ title, subtitle, badge, verses, onBookmark
 
         <article className="mx-auto max-w-[920px] rounded-[34px] border border-white/10 bg-[linear-gradient(180deg,rgba(15,36,56,0.82),rgba(7,17,31,0.78))] p-4 shadow-[0_28px_90px_rgba(0,0,0,0.28)] backdrop-blur-2xl sm:p-6 lg:p-9">
           <div className="rounded-[28px] border border-white/[0.06] bg-[#07111F]/34 px-4 py-6 sm:px-7 lg:px-10 lg:py-9">
-            {verses.map((verse, index) => (
-              <section
-                key={`${verse.sura_no}:${verse.aya_no}`}
-                className={[
-                  'group relative rounded-[24px] border-b border-white/[0.07] px-2 py-7 transition first:pt-0 last:border-b-0 last:pb-0 sm:px-4 sm:py-8 lg:py-9',
-                  isCurrentVerse(verse)
-                    ? 'border border-[#D9B45A]/25 bg-[linear-gradient(135deg,rgba(16,185,129,0.13),rgba(217,180,90,0.07))] shadow-[0_0_42px_rgba(16,185,129,0.10)]'
-                    : '',
-                ].join(' ')}
-              >
-                <div className="mb-5 flex items-center justify-between gap-4">
-                  <div className="flex items-center gap-2">
-                    <span className="grid size-10 place-items-center rounded-full border border-[#D9B45A]/30 bg-[#D9B45A]/10 text-sm font-bold tabular-nums text-[#F2C66D] shadow-[0_0_24px_rgba(217,180,90,0.08)]">
-                      {verse.aya_no}
-                    </span>
-                    <span className="text-xs font-semibold uppercase tracking-[0.16em] text-[#7D8DA3]">
-                      {verse.sura_no}:{verse.aya_no}
-                    </span>
+            {displayItems.map((item) => {
+              if (item.type === 'basmala') {
+                return (
+                  <div
+                    key={item.key}
+                    className="mb-4 rounded-[24px] border border-[#D9B45A]/20 bg-[linear-gradient(135deg,rgba(217,180,90,0.09),rgba(16,185,129,0.06))] px-4 py-7 text-center shadow-[0_0_36px_rgba(217,180,90,0.08)] sm:px-6"
+                  >
+                    <p
+                      className="font-qaloun text-[2rem] leading-[2.2] text-[#F4E7C5] sm:text-[2.45rem] lg:text-[2.8rem]"
+                      dir="rtl"
+                    >
+                      {item.text}
+                    </p>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <AyahAudioButton verse={verse} queue={verses} />
-                    {onBookmark ? (
-                      <button
-                        onClick={() => onBookmark(verse)}
-                        className="grid size-10 place-items-center rounded-2xl border border-white/10 bg-white/[0.04] text-[#B8C4D6] transition hover:border-[#D9B45A]/35 hover:bg-[#D9B45A]/10 hover:text-[#F2C66D]"
-                        aria-label="Bookmark verse"
-                        type="button"
-                      >
-                        <Bookmark className="size-4" />
-                      </button>
-                    ) : null}
-                  </div>
-                </div>
+                );
+              }
 
-                <p
-                  className="font-qaloun text-right text-[2.05rem] leading-[2.35] text-white drop-shadow-[0_0_18px_rgba(242,198,109,0.06)] sm:text-[2.45rem] sm:leading-[2.45] lg:text-[2.85rem] lg:leading-[2.55]"
-                  dir="rtl"
+              const { verse } = item;
+              const verseIndex = audioVerses.findIndex(
+                (audioVerse) => audioVerse.sura_no === verse.sura_no && audioVerse.aya_no === verse.aya_no
+              );
+
+              return (
+                <section
+                  key={item.key}
+                  className={[
+                    'group relative rounded-[24px] border-b border-white/[0.07] px-2 py-7 transition first:pt-0 last:border-b-0 last:pb-0 sm:px-4 sm:py-8 lg:py-9',
+                    isCurrentVerse(verse)
+                      ? 'border border-[#D9B45A]/25 bg-[linear-gradient(135deg,rgba(16,185,129,0.13),rgba(217,180,90,0.07))] shadow-[0_0_42px_rgba(16,185,129,0.10)]'
+                      : '',
+                  ].join(' ')}
                 >
-                  {verse.aya_text}
-                </p>
+                  <div className="mb-5 flex items-center justify-between gap-4">
+                    <div className="flex items-center gap-2">
+                      <span className="grid size-10 place-items-center rounded-full border border-[#D9B45A]/30 bg-[#D9B45A]/10 text-sm font-bold tabular-nums text-[#F2C66D] shadow-[0_0_24px_rgba(217,180,90,0.08)]">
+                        {verse.aya_no}
+                      </span>
+                      <span className="text-xs font-semibold uppercase tracking-[0.16em] text-[#7D8DA3]">
+                        {verse.sura_no}:{verse.aya_no}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <AyahAudioButton verse={verse} queue={audioVerses} />
+                      {onBookmark ? (
+                        <button
+                          onClick={() => onBookmark(verse)}
+                          className="grid size-10 place-items-center rounded-2xl border border-white/10 bg-white/[0.04] text-[#B8C4D6] transition hover:border-[#D9B45A]/35 hover:bg-[#D9B45A]/10 hover:text-[#F2C66D]"
+                          aria-label="Bookmark verse"
+                          type="button"
+                        >
+                          <Bookmark className="size-4" />
+                        </button>
+                      ) : null}
+                    </div>
+                  </div>
 
-                <div className="mt-5 flex flex-wrap items-center justify-between gap-3 text-xs text-[#7D8DA3]">
-                  <span className="flex flex-wrap items-center gap-2">
-                    <span>{verse.sura_name_en}</span>
-                    <span className="size-1 rounded-full bg-[#D9B45A]/55" aria-hidden="true" />
-                    <span>Page {verse.page}</span>
-                    <span className="size-1 rounded-full bg-[#D9B45A]/55" aria-hidden="true" />
-                    <span>Juz {verse.jozz}</span>
-                  </span>
-                  <span className="text-[#D9B45A]/75">Ayah {index + 1} of {verses.length}</span>
-                </div>
-              </section>
-            ))}
+                  <p
+                    className="font-qaloun text-right text-[2.05rem] leading-[2.35] text-white drop-shadow-[0_0_18px_rgba(242,198,109,0.06)] sm:text-[2.45rem] sm:leading-[2.45] lg:text-[2.85rem] lg:leading-[2.55]"
+                    dir="rtl"
+                  >
+                    {verse.aya_text}
+                  </p>
+
+                  <div className="mt-5 flex flex-wrap items-center justify-between gap-3 text-xs text-[#7D8DA3]">
+                    <span className="flex flex-wrap items-center gap-2">
+                      <span>{verse.sura_name_en}</span>
+                      <span className="size-1 rounded-full bg-[#D9B45A]/55" aria-hidden="true" />
+                      <span>Page {verse.page}</span>
+                      <span className="size-1 rounded-full bg-[#D9B45A]/55" aria-hidden="true" />
+                      <span>Juz {verse.jozz}</span>
+                    </span>
+                    <span className="text-[#D9B45A]/75">
+                      Ayah {verseIndex + 1} of {audioVerses.length}
+                    </span>
+                  </div>
+                </section>
+              );
+            })}
           </div>
         </article>
       </section>

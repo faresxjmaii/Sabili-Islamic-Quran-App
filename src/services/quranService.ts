@@ -7,7 +7,7 @@ const defaultHeaders = {
 };
 
 const QALOON_DATA_URL =
-  'https://cdn.jsdelivr.net/gh/thetruetruth/quran-data-kfgqpc@main/qaloon/data/QaloonData_v10.json';
+  'https://raw.githubusercontent.com/thetruetruth/quran-data-kfgqpc/main/qaloon/data/QaloonData_v10.json';
 
 export type QalounAyah = {
   id: number;
