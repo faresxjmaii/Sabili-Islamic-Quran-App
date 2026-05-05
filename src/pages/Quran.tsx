@@ -6,12 +6,10 @@ import { bookmarkService, fetchChapters, getHizbSummaries } from '../services/qu
 import { readingProgressService } from '../services/readingProgressService';
 import { useI18n, type TranslationKey } from '../i18n';
 
-type QuranTab = 'all' | 'makkah' | 'madinah' | 'hizb';
+type QuranTab = 'all' | 'hizb';
 
 const tabs: Array<{ id: QuranTab; labelKey: TranslationKey }> = [
   { id: 'all', labelKey: 'allSurahs' },
-  { id: 'makkah', labelKey: 'meccan' },
-  { id: 'madinah', labelKey: 'medinan' },
   { id: 'hizb', labelKey: 'hizb60' },
 ];
 
@@ -27,19 +25,12 @@ export default function QuranPage() {
 
   const surahs = useMemo(() => {
     const chapters = data?.chapters ?? [];
-    return chapters.filter((chapter) => {
-      const matchesQuery = `${chapter.name_simple} ${chapter.name_arabic} ${chapter.translated_name.name}`
+    return chapters.filter((chapter) =>
+      `${chapter.name_simple} ${chapter.name_arabic} ${chapter.translated_name.name}`
         .toLowerCase()
-        .includes(query.toLowerCase());
-      const matchesTab =
-        activeTab === 'all' ||
-        activeTab === 'hizb' ||
-        (activeTab === 'makkah' && chapter.revelation_place === 'makkah') ||
-        (activeTab === 'madinah' && chapter.revelation_place === 'madinah');
-
-      return matchesQuery && matchesTab;
-    });
-  }, [activeTab, data?.chapters, query]);
+        .includes(query.toLowerCase())
+    );
+  }, [data?.chapters, query]);
 
   const hizbs = useMemo(() => getHizbSummaries(), []);
   const filteredHizbs = useMemo(() => {
@@ -220,7 +211,7 @@ export default function QuranPage() {
               <Sparkles className="size-6 text-[#10B981]" />
             </div>
             <p className="font-qaloun text-right text-3xl leading-[2.35] text-white" dir="rtl">
-              بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ
+              بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ
             </p>
             <div className="mt-7 rounded-[22px] border border-white/10 bg-white/[0.04] p-5">
               <p className="text-sm leading-6 text-[#DCE5EF]">
