@@ -33,6 +33,7 @@ export default function Home() {
   const locationName = formatLocation({
     city: data?.resolvedLocation?.city,
     country: data?.resolvedLocation?.country,
+    countryCode: data?.resolvedLocation?.countryCode,
     displayName: data?.resolvedLocation?.displayName,
     language,
   }) || t('location');

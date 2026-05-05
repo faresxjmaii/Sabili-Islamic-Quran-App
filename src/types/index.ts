@@ -15,6 +15,10 @@ export interface PrayerTimes {
 export interface ResolvedLocation {
   city: string;
   country: string;
+  countryCode?: string;
+  countryNameEn?: string;
+  countryNameIt?: string;
+  countryNameAr?: string;
   displayName: string;
   latitude?: number;
   longitude?: number;
@@ -84,6 +88,10 @@ export interface UserLocation {
   type: 'auto' | 'manual';
   city?: string;
   country?: string;
+  countryCode?: string;
+  countryNameEn?: string;
+  countryNameIt?: string;
+  countryNameAr?: string;
   displayName?: string;
   latitude?: number;
   longitude?: number;

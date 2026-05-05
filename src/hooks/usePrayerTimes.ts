@@ -12,11 +12,18 @@ import {
   validateManualLocation,
 } from '../services/prayerService';
 import { useSettings } from '../app/useSettings';
+import { normalizeCountryInput } from '../utils/countryNormalization';
 
 export function usePrayerTimes() {
   const { settings, setCalculationMethod, setLocation } = useSettings();
   const { location, calculationMethod, madhab } = settings;
-  const [manualCandidate, setManualCandidate] = useState<{ city: string; country: string } | null>(null);
+  const [manualCandidate, setManualCandidate] = useState<{
+    city: string;
+    country: string;
+    countryCode: string;
+    countryNameIt: string;
+    countryNameAr: string;
+  } | null>(null);
   const [gpsCandidate, setGpsCandidate] = useState<{
     latitude: number;
     longitude: number;
@@ -82,7 +89,10 @@ export function usePrayerTimes() {
     (location.type === 'manual'
       ? {
           city: location.city?.trim() ?? '',
-          country: location.country?.trim() ?? '',
+          country: location.countryNameEn?.trim() || location.country?.trim() || '',
+          countryCode: location.countryCode ?? '',
+          countryNameIt: location.countryNameIt ?? '',
+          countryNameAr: location.countryNameAr ?? '',
         }
       : null);
   const activeGpsLocation =
@@ -118,11 +128,23 @@ export function usePrayerTimes() {
 
       if (activeManualLocation && hasValidManualLocation) {
         const city = activeManualLocation.city.trim();
-        const country = activeManualLocation.country.trim();
+        const normalizedCountry = normalizeCountryInput(
+          activeManualLocation.countryCode || activeManualLocation.country
+        );
+        const country = normalizedCountry?.nameEn ?? activeManualLocation.country.trim();
         const times = await fetchPrayerTimesByCity(city, country, method, school);
 
         if (manualCandidate) {
-          setLocation({ type: 'manual', city, country });
+          setLocation({
+            type: 'manual',
+            city,
+            country: normalizedCountry?.nameEn ?? country,
+            countryCode: normalizedCountry?.code,
+            countryNameEn: normalizedCountry?.nameEn,
+            countryNameIt: normalizedCountry?.nameIt,
+            countryNameAr: normalizedCountry?.nameAr,
+            displayName: `${city}, ${normalizedCountry?.nameEn ?? country}`,
+          });
           setManualCandidate(null);
         }
 
@@ -130,8 +152,12 @@ export function usePrayerTimes() {
           ...times,
           resolvedLocation: {
             city,
-            country,
-            displayName: `${city}, ${country}`,
+            country: normalizedCountry?.nameEn ?? country,
+            countryCode: normalizedCountry?.code,
+            countryNameEn: normalizedCountry?.nameEn,
+            countryNameIt: normalizedCountry?.nameIt,
+            countryNameAr: normalizedCountry?.nameAr,
+            displayName: `${city}, ${normalizedCountry?.nameEn ?? country}`,
           },
         };
       }
@@ -221,11 +247,17 @@ export function usePrayerTimes() {
 
   const useManualLocation = (city: string, country: string) => {
     const trimmedCity = city.trim();
-    const trimmedCountry = country.trim();
-    if (!validateManualLocation(trimmedCity, trimmedCountry)) return;
+    const normalizedCountry = normalizeCountryInput(country);
+    if (!normalizedCountry || !validateManualLocation(trimmedCity, normalizedCountry.nameEn)) return;
     setLocationAccessError(false);
     setGpsCandidate(null);
-    setManualCandidate({ city: trimmedCity, country: trimmedCountry });
+    setManualCandidate({
+      city: trimmedCity,
+      country: normalizedCountry.nameEn,
+      countryCode: normalizedCountry.code,
+      countryNameIt: normalizedCountry.nameIt,
+      countryNameAr: normalizedCountry.nameAr,
+    });
   };
 
   return {
