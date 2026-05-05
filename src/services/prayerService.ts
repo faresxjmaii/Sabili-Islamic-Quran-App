@@ -181,11 +181,15 @@ export function getCurrentPosition(): Promise<GeolocationCoordinates> {
 export async function reverseGeocodeCoords(
   latitude: number,
   longitude: number,
-  accuracy?: number
+  accuracy?: number,
+  timeoutMs = 4500
 ): Promise<ResolvedLocation> {
+  const controller = new AbortController();
+  const timeout = window.setTimeout(() => controller.abort(), timeoutMs);
+
   try {
     const url = `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=en`;
-    const res = await fetch(url);
+    const res = await fetch(url, { signal: controller.signal });
     if (!res.ok) throw new Error('Reverse geocoding failed');
     const data = await res.json();
     const city = data.city || data.locality || data.principalSubdivision || 'Current location';
@@ -212,6 +216,8 @@ export async function reverseGeocodeCoords(
       longitude,
       accuracy,
     };
+  } finally {
+    window.clearTimeout(timeout);
   }
 }
 

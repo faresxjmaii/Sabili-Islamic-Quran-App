@@ -142,10 +142,12 @@ export function usePrayerTimes() {
           throw new Error('prayerTimesUnavailable');
         }
 
-        const [times, resolvedLocation] = await Promise.all([
-          fetchPrayerTimesByCoords(coords.latitude, coords.longitude, method, school),
-          reverseGeocodeCoords(coords.latitude, coords.longitude, coords.accuracy),
-        ]);
+        const times = await fetchPrayerTimesByCoords(coords.latitude, coords.longitude, method, school);
+        const resolvedLocation = await reverseGeocodeCoords(
+          coords.latitude,
+          coords.longitude,
+          coords.accuracy
+        );
         const displayName = resolvedLocation.displayName || location.displayName || 'Current GPS location';
 
         if (gpsCandidate || !location.latitude || !location.longitude) {
