@@ -18,6 +18,10 @@ type QuranReaderProps = {
   readerId: number;
 };
 
+function toArabicIndicNumber(value: number): string {
+  return String(value).replace(/\d/g, (digit) => String.fromCharCode(0x0660 + Number(digit)));
+}
+
 function ReaderStat({ icon: Icon, label }: { icon: typeof Hash; label: string }) {
   return (
     <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.045] px-3 py-1.5 text-xs font-semibold text-[#B8C4D6]">
@@ -201,8 +205,8 @@ export default function QuranReader({ title, subtitle, badge, verses, onBookmark
           </div>
         </header>
 
-        <article className="mx-auto max-w-[920px] rounded-[24px] border border-white/10 bg-[linear-gradient(180deg,rgba(15,36,56,0.82),rgba(7,17,31,0.78))] p-1 shadow-[0_28px_90px_rgba(0,0,0,0.28)] backdrop-blur-2xl sm:rounded-[34px] sm:p-6 lg:p-9">
-          <div className="rounded-[20px] border border-white/[0.06] bg-[#07111F]/34 px-1 py-5 sm:rounded-[28px] sm:px-7 sm:py-6 md:px-8 lg:px-10 lg:py-9">
+        <article className="mx-auto max-w-[920px] rounded-[22px] border border-white/10 bg-[linear-gradient(180deg,rgba(15,36,56,0.76),rgba(7,17,31,0.82))] p-0.5 shadow-[0_28px_90px_rgba(0,0,0,0.28)] backdrop-blur-2xl sm:rounded-[34px] sm:p-6 lg:p-9">
+          <div className="rounded-[18px] border border-white/[0.05] bg-[#07111F]/26 px-1 py-4 sm:rounded-[28px] sm:px-7 sm:py-6 md:px-8 lg:px-10 lg:py-9">
             {displayItems.map((item) => {
               if (item.type === 'basmala') {
                 return (
@@ -211,7 +215,7 @@ export default function QuranReader({ title, subtitle, badge, verses, onBookmark
                     className="mb-6 rounded-[20px] border border-[#D9B45A]/20 bg-[linear-gradient(135deg,rgba(217,180,90,0.09),rgba(16,185,129,0.06))] px-3 py-9 text-center shadow-[0_0_36px_rgba(217,180,90,0.08)] sm:mb-7 sm:rounded-[24px] sm:px-6 sm:py-11 md:py-12"
                   >
                     <p
-                      className="quran-basmala-text font-qaloun text-[#F4E7C5]"
+                      className="quran-basmala-text font-quran-uthmani text-[#F4E7C5]"
                       dir="rtl"
                     >
                       {item.text}
@@ -237,15 +241,15 @@ export default function QuranReader({ title, subtitle, badge, verses, onBookmark
                     }
                   }}
                   className={[
-                    'group relative rounded-[20px] border-b border-white/[0.07] px-1 py-8 transition first:pt-1 last:border-b-0 last:pb-1 sm:rounded-[24px] sm:px-5 sm:py-10 md:px-6 lg:py-11 lg:px-7',
+                    'group relative border-b border-white/[0.07] px-2.5 py-7 transition first:pt-1 last:border-b-0 last:pb-1 sm:rounded-[24px] sm:px-5 sm:py-10 md:px-6 lg:py-11 lg:px-7',
                     isCurrentVerse(verse)
-                      ? 'border border-[#D9B45A]/25 bg-[linear-gradient(135deg,rgba(16,185,129,0.13),rgba(217,180,90,0.07))] shadow-[0_0_42px_rgba(16,185,129,0.10)]'
+                      ? 'rounded-[18px] border border-[#D9B45A]/25 bg-[linear-gradient(135deg,rgba(16,185,129,0.12),rgba(217,180,90,0.06))] shadow-[0_0_42px_rgba(16,185,129,0.10)]'
                       : '',
                   ].join(' ')}
                 >
-                  <div className="mb-5 flex items-center justify-between gap-2 sm:mb-6 sm:gap-4">
+                  <div className="mb-4 flex items-center justify-between gap-2 sm:mb-6 sm:gap-4">
                     <div className="flex items-center gap-2 sm:gap-3">
-                      <span className="grid size-9 place-items-center rounded-full border border-[#D9B45A]/30 bg-[#D9B45A]/10 text-xs font-bold tabular-nums text-[#F2C66D] shadow-[0_0_24px_rgba(217,180,90,0.08)] sm:size-11 sm:text-sm">
+                      <span className="grid size-8 place-items-center rounded-full border border-[#D9B45A]/25 bg-[#D9B45A]/8 text-xs font-bold tabular-nums text-[#F2C66D] shadow-[0_0_24px_rgba(217,180,90,0.08)] sm:size-11 sm:text-sm">
                         {verse.aya_no}
                       </span>
                       <span className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#7D8DA3] sm:text-xs sm:tracking-[0.16em]">
@@ -268,13 +272,16 @@ export default function QuranReader({ title, subtitle, badge, verses, onBookmark
                   </div>
 
                   <p
-                    className="quran-ayah-text mx-auto max-w-none font-qaloun text-right text-white drop-shadow-[0_0_18px_rgba(242,198,109,0.06)] sm:max-w-[44rem] lg:max-w-[48rem]"
+                    className="quran-ayah-text font-quran-uthmani text-right text-white drop-shadow-[0_0_18px_rgba(242,198,109,0.05)]"
                     dir="rtl"
                   >
                     {verse.aya_text}
+                    <span className="quran-ayah-marker" aria-label={`Ayah ${verse.aya_no}`}>
+                      {toArabicIndicNumber(verse.aya_no)}
+                    </span>
                   </p>
 
-                  <div className="mt-5 flex flex-col gap-2.5 text-xs leading-5 text-[#7D8DA3] sm:mt-6 sm:flex-row sm:items-center sm:justify-between sm:gap-2">
+                  <div className="mt-4 flex flex-col gap-2 text-xs leading-5 text-[#6F8197] sm:mt-6 sm:flex-row sm:items-center sm:justify-between sm:gap-2">
                     <span className="flex flex-wrap items-center gap-2">
                       <span>{verse.sura_name_en}</span>
                       <span className="size-1 rounded-full bg-[#D9B45A]/55" aria-hidden="true" />
