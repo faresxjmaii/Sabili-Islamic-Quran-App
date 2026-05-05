@@ -76,7 +76,7 @@ export default function QuranReader({ title, subtitle, badge, verses, onBookmark
     togglePlayPause,
     isCurrentVerse,
   } = useQuranAudio();
-  
+
   const currentVerseInReader = Boolean(
     currentVerse && audioVerses.some((verse) => getVerseKey(verse) === getVerseKey(currentVerse))
   );
@@ -94,7 +94,7 @@ export default function QuranReader({ title, subtitle, badge, verses, onBookmark
             const verseKey = entry.target.getAttribute('data-verse-key');
             const ayaNo = entry.target.getAttribute('data-ayah-no');
             const suraName = entry.target.getAttribute('data-surah-name');
-            
+
             if (verseKey && ayaNo) {
               readingProgressService.save({
                 readerType,
@@ -113,7 +113,7 @@ export default function QuranReader({ title, subtitle, badge, verses, onBookmark
     );
 
     observerRef.current = observer;
-    
+
     // We'll attach observers to elements in the render loop via refs or data attributes
     return () => observer.disconnect();
   }, [readerType, readerId, location.pathname]);
@@ -163,7 +163,7 @@ export default function QuranReader({ title, subtitle, badge, verses, onBookmark
           </div>
 
           <div className="mt-5 text-center">
-            <p className={`${isRtl ? 'label-ui-ar no-arabic-uppercase text-[13px]' : 'text-xs font-bold uppercase tracking-[0.24em]'} text-[#D9B45A]`}>{t('canonicalUthmaniText')}</p>
+
             <h1 className="mx-auto mt-2 max-w-3xl text-2xl font-bold leading-tight text-white sm:text-3xl lg:text-5xl">
               {title}
             </h1>
@@ -218,9 +218,6 @@ export default function QuranReader({ title, subtitle, badge, verses, onBookmark
               </label>
             </div>
 
-            <p className="mt-3 text-xs leading-5 text-[#7D8DA3]">
-              {t('textAudioNote')}
-            </p>
             {status === 'error' && errorMessage ? (
               <p className="mx-auto mt-3 max-w-xl rounded-2xl border border-[#F2C66D]/20 bg-[#D9B45A]/10 px-4 py-3 text-sm text-[#F4E7C5]">
                 {t('quranAudioUnavailable')}

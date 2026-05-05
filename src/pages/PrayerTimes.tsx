@@ -314,9 +314,7 @@ export default function PrayerTimesPage() {
                   <p className="mt-2 text-3xl font-bold tabular-nums text-white">{formatTime12h(time)}</p>
                   {active ? (
                     <p className="mt-4 text-sm font-medium text-[#10B981]">{next?.timeLeft} {t('timeLeft')}</p>
-                  ) : (
-                    <p className="mt-4 text-sm text-[#6F8198]">{t('tapReminder')}</p>
-                  )}
+                  ) : null}
                 </div>
               </motion.div>
             );

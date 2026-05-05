@@ -34,7 +34,7 @@ const translations = {
     share: 'Share',
     shareCopied: 'Prayer summary copied',
     timeLeft: 'left',
-    tapReminder: 'Tap for reminder',
+
     next: 'Next',
     todaysFocus: "Today's focus",
     stayConsistent: 'Stay consistent',
@@ -194,7 +194,7 @@ const translations = {
     share: 'مشاركة',
     shareCopied: 'تم نسخ ملخص الصلاة',
     timeLeft: 'متبقٍ',
-    tapReminder: 'اضغط للتذكير',
+
     next: 'القادمة',
     todaysFocus: 'تركيز اليوم',
     stayConsistent: 'حافظ على الثبات',
@@ -354,7 +354,7 @@ const translations = {
     share: 'Condividi',
     shareCopied: 'Riepilogo preghiera copiato',
     timeLeft: 'rimasti',
-    tapReminder: 'Tocca per promemoria',
+
     next: 'Prossima',
     todaysFocus: 'Focus di oggi',
     stayConsistent: 'Resta costante',

@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { Bookmark, BookOpen, ChevronRight, Search, Settings, SlidersHorizontal, Sparkles } from 'lucide-react';
+import { Bookmark, BookOpen, ChevronRight, Search } from 'lucide-react';
 import { bookmarkService, fetchChapters, getHizbSummaries } from '../services/quranService';
 import { readingProgressService } from '../services/readingProgressService';
 import { useI18n, type TranslationKey } from '../i18n';
@@ -72,18 +72,12 @@ export default function QuranPage() {
 
       <div className="relative z-10 mx-auto max-w-[1480px] px-4 py-5 sm:px-6 lg:grid lg:grid-cols-[minmax(0,1fr)_410px] lg:gap-8 lg:px-8 lg:py-10 2xl:px-0">
         <section className="mx-auto w-full max-w-[620px] lg:max-w-none">
-          <header className="mb-5 flex items-center justify-between lg:mb-6">
-            <div>
-              <p className={`hidden ${isRtl ? 'label-ui-ar no-arabic-uppercase text-[13px]' : 'text-xs font-semibold uppercase tracking-[0.22em]'} text-[#D9B45A] lg:block`}>{t('riwayatQaloun')}</p>
-              <h1 className="text-2xl font-semibold text-white lg:mt-2 lg:text-4xl">{t('navQuran')}</h1>
-            </div>
-            <button className="grid size-11 place-items-center rounded-2xl border border-white/10 bg-white/[0.04] text-[#B8C4D6] lg:size-12" type="button" aria-label={t('quranSettings')}>
-              <Settings className="size-5" />
-            </button>
+          <header className="mb-5 lg:mb-6">
+            <h1 className="text-2xl font-semibold text-white lg:text-4xl">{t('navQuran')}</h1>
           </header>
 
-          <div className="mb-4 flex gap-3">
-            <label className="flex h-12 flex-1 items-center gap-3 rounded-2xl border border-white/10 bg-[#0F2438]/90 px-4 text-[#7D8DA3] shadow-[0_18px_50px_rgba(0,0,0,0.18)] lg:h-14">
+          <div className="mb-4">
+            <label className="flex h-12 w-full items-center gap-3 rounded-2xl border border-white/10 bg-[#0F2438]/90 px-4 text-[#7D8DA3] shadow-[0_18px_50px_rgba(0,0,0,0.18)] lg:h-14">
               <Search className="size-4 shrink-0" />
               <input
                 value={query}
@@ -92,9 +86,6 @@ export default function QuranPage() {
                 placeholder={activeTab === 'hizb' ? t('searchHizb') : t('searchSurah')}
               />
             </label>
-            <button className="grid size-12 place-items-center rounded-2xl border border-white/10 bg-[#0F2438]/90 text-[#B8C4D6] lg:size-14" type="button" aria-label={t('filterQuran')}>
-              <SlidersHorizontal className="size-5" />
-            </button>
           </div>
 
           {readingProgress ? (
@@ -202,22 +193,9 @@ export default function QuranPage() {
 
         <aside className="mt-8 hidden lg:block">
           <div className="sticky top-8 rounded-[28px] border border-white/10 bg-[#0F2438]/76 p-7 shadow-[0_24px_70px_rgba(0,0,0,0.24)] backdrop-blur-2xl">
-            <div className="mb-7 flex items-center justify-between">
-              <div>
-                <p className={`${isRtl ? 'label-ui-ar no-arabic-uppercase text-[13px]' : 'text-xs font-semibold uppercase tracking-[0.2em]'} text-[#D9B45A]`}>{t('defaultReading')}</p>
-                <h2 className="mt-2 text-2xl font-semibold text-white">{t('riwayatQaloun')}</h2>
-                <p className="mt-1 text-sm text-[#B8C4D6]">{t('qalounDesc')}</p>
-              </div>
-              <Sparkles className="size-6 text-[#10B981]" />
-            </div>
             <p className="font-qaloun text-right text-3xl leading-[2.35] text-white" dir="rtl">
               بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ
             </p>
-            <div className="mt-7 rounded-[22px] border border-white/10 bg-white/[0.04] p-5">
-              <p className="text-sm leading-6 text-[#DCE5EF]">
-                {t('quranDesc')}
-              </p>
-            </div>
           </div>
         </aside>
       </div>
