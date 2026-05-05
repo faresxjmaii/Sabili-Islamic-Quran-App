@@ -34,6 +34,8 @@ export default function SurahDetail() {
       badge={`Surah ${data.id}`}
       verses={data.verses}
       onBookmark={addBookmark}
+      readerType="surah"
+      readerId={data.id}
     />
   );
 }

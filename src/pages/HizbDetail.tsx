@@ -23,6 +23,8 @@ export default function HizbDetail() {
       subtitle={`${data.subtitle} - ${data.verses.length} verses - Canonical Uthmani text`}
       badge={`Hizb ${data.id}`}
       verses={data.verses}
+      readerType="hizb"
+      readerId={data.id}
     />
   );
 }

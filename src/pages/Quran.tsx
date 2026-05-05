@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { Bookmark, BookOpen, ChevronRight, Search, Settings, SlidersHorizontal, Sparkles } from 'lucide-react';
 import { bookmarkService, fetchChapters, getHizbSummaries } from '../services/quranService';
+import { readingProgressService } from '../services/readingProgressService';
 import { useI18n, type TranslationKey } from '../i18n';
 
 type QuranTab = 'all' | 'makkah' | 'madinah' | 'hizb';
@@ -50,8 +51,13 @@ export default function QuranPage() {
     );
   }, [hizbs, query]);
   const bookmark = useMemo(() => bookmarkService.get(), []);
-  const lastReadLink = bookmark ? `/quran/${bookmark.surahId}` : '/quran/2';
-  const lastReadTitle = bookmark ? `${bookmark.surahName} - Ayah ${bookmark.verseNumber}` : 'Al-Baqarah - Ayah 255';
+  const readingProgress = useMemo(() => readingProgressService.get(), []);
+
+  const lastReadTitle = readingProgress 
+    ? `${readingProgress.surahName || (readingProgress.readerType === 'hizb' ? `Hizb ${readingProgress.hizbNumber}` : 'Quran')} - Ayah ${readingProgress.ayahNumber}`
+    : bookmark 
+      ? `${bookmark.surahName} - Ayah ${bookmark.verseNumber}` 
+      : 'Al-Baqarah - Ayah 255';
 
   if (isError) {
     return (
@@ -94,20 +100,37 @@ export default function QuranPage() {
             </button>
           </div>
 
-          <Link
-            to={lastReadLink}
-            className="mb-6 flex items-center gap-4 rounded-[22px] border border-white/10 bg-[#0F2438]/90 p-4 shadow-[0_22px_60px_rgba(0,0,0,0.24)] transition hover:border-[#D9B45A]/30 lg:p-5"
-          >
-            <span className="grid size-16 shrink-0 place-items-center rounded-2xl border border-[#D9B45A]/20 bg-[linear-gradient(135deg,rgba(242,198,109,0.20),rgba(16,185,129,0.10))] text-[#F2C66D] lg:size-20">
-              <BookOpen className="size-9 lg:size-11" />
-            </span>
-            <span className="min-w-0 flex-1">
-              <span className="block text-xs font-semibold uppercase tracking-[0.16em] text-[#D9B45A]">{t('lastRead')}</span>
-              <span className="mt-1 block text-sm font-semibold text-white lg:text-base">{lastReadTitle}</span>
-              <span className="mt-1 block text-xs text-[#B8C4D6]">{t('fullReader')}</span>
-            </span>
-            <Bookmark className="size-5 shrink-0 fill-[#F2C66D] text-[#F2C66D]" />
-          </Link>
+          {readingProgress ? (
+            <Link
+              to={readingProgress.route}
+              className="mb-6 flex items-center gap-4 rounded-[22px] border border-[#D9B45A]/20 bg-[linear-gradient(135deg,rgba(15,36,56,0.9),rgba(7,17,31,0.85))] p-4 shadow-[0_22px_60px_rgba(0,0,0,0.24)] transition hover:border-[#D9B45A]/40 lg:p-5"
+            >
+              <span className="grid size-16 shrink-0 place-items-center rounded-2xl border border-[#D9B45A]/20 bg-[linear-gradient(135deg,rgba(242,198,109,0.20),rgba(16,185,129,0.10))] text-[#F2C66D] lg:size-20">
+                <BookOpen className="size-9 lg:size-11" />
+              </span>
+              <span className="min-w-0 flex-1">
+                <span className="block text-xs font-semibold uppercase tracking-[0.16em] text-[#D9B45A]">Continue Reading</span>
+                <span className="mt-1 block text-sm font-semibold text-white lg:text-base">{lastReadTitle}</span>
+                <span className="mt-1 block text-xs text-[#B8C4D6]">Resuming from your last session</span>
+              </span>
+              <ChevronRight className="size-5 shrink-0 text-[#D9B45A]" />
+            </Link>
+          ) : bookmark ? (
+            <Link
+              to={`/quran/${bookmark.surahId}`}
+              className="mb-6 flex items-center gap-4 rounded-[22px] border border-white/10 bg-[#0F2438]/90 p-4 shadow-[0_22px_60px_rgba(0,0,0,0.24)] transition hover:border-[#D9B45A]/30 lg:p-5"
+            >
+              <span className="grid size-16 shrink-0 place-items-center rounded-2xl border border-[#D9B45A]/20 bg-[linear-gradient(135deg,rgba(242,198,109,0.20),rgba(16,185,129,0.10))] text-[#F2C66D] lg:size-20">
+                <Bookmark className="size-9 lg:size-11" />
+              </span>
+              <span className="min-w-0 flex-1">
+                <span className="block text-xs font-semibold uppercase tracking-[0.16em] text-[#D9B45A]">{t('lastRead')}</span>
+                <span className="mt-1 block text-sm font-semibold text-white lg:text-base">{lastReadTitle}</span>
+                <span className="mt-1 block text-xs text-[#B8C4D6]">Manual bookmark</span>
+              </span>
+              <Bookmark className="size-5 shrink-0 fill-[#F2C66D] text-[#F2C66D]" />
+            </Link>
+          ) : null}
 
           <div className="mb-4 flex items-center gap-2 overflow-x-auto border-b border-white/10 px-1 text-sm">
             {tabs.map((tab) => (

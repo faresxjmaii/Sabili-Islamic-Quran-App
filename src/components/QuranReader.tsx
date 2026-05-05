@@ -1,11 +1,12 @@
 import { Bookmark, ChevronLeft, Headphones, Hash, Layers, Pause, Play, RotateCcw, ScrollText } from 'lucide-react';
-import { useMemo } from 'react';
-import { Link } from 'react-router-dom';
+import { useMemo, useEffect, useRef } from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import { useQuranAudio } from '../app/useQuranAudio';
 import AyahAudioButton from './AyahAudioButton';
 import { getQuranDisplayItems } from '../services/quranDisplayService';
 import { getVerseKey } from '../services/quranAudioService';
 import type { QalounAyah } from '../services/quranService';
+import { readingProgressService, type ReaderType } from '../services/readingProgressService';
 
 type QuranReaderProps = {
   title: string;
@@ -13,6 +14,8 @@ type QuranReaderProps = {
   badge: string;
   verses: QalounAyah[];
   onBookmark?: (verse: QalounAyah) => void;
+  readerType: ReaderType;
+  readerId: number;
 };
 
 function ReaderStat({ icon: Icon, label }: { icon: typeof Hash; label: string }) {
@@ -24,8 +27,12 @@ function ReaderStat({ icon: Icon, label }: { icon: typeof Hash; label: string })
   );
 }
 
-export default function QuranReader({ title, subtitle, badge, verses, onBookmark }: QuranReaderProps) {
+export default function QuranReader({ title, subtitle, badge, verses, onBookmark, readerType, readerId }: QuranReaderProps) {
   const { audioVerses, displayItems } = useMemo(() => getQuranDisplayItems(verses), [verses]);
+  const location = useLocation();
+  const observerRef = useRef<IntersectionObserver | null>(null);
+  const scrolledRef = useRef(false);
+
   const firstVerse = audioVerses[0];
   const surahCount = new Set(audioVerses.map((verse) => verse.sura_no)).size;
   const {
@@ -41,6 +48,7 @@ export default function QuranReader({ title, subtitle, badge, verses, onBookmark
     togglePlayPause,
     isCurrentVerse,
   } = useQuranAudio();
+  
   const currentVerseInReader = Boolean(
     currentVerse && audioVerses.some((verse) => getVerseKey(verse) === getVerseKey(currentVerse))
   );
@@ -48,6 +56,61 @@ export default function QuranReader({ title, subtitle, badge, verses, onBookmark
   const lastPlayedVerse = lastPlayed
     ? audioVerses.find((verse) => verse.verse_key === `${lastPlayed.surahNumber}:${lastPlayed.ayahNumber}`)
     : undefined;
+
+  // Handle Reading Progress Tracking
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const verseKey = entry.target.getAttribute('data-verse-key');
+            const ayaNo = entry.target.getAttribute('data-ayah-no');
+            const suraName = entry.target.getAttribute('data-surah-name');
+            
+            if (verseKey && ayaNo) {
+              readingProgressService.save({
+                readerType,
+                verseKey,
+                ayahNumber: parseInt(ayaNo, 10),
+                route: location.pathname,
+                surahName: suraName || undefined,
+                surahNumber: readerType === 'surah' ? readerId : undefined,
+                hizbNumber: readerType === 'hizb' ? readerId : undefined,
+              });
+            }
+          }
+        });
+      },
+      { threshold: 0.5 }
+    );
+
+    observerRef.current = observer;
+    
+    // We'll attach observers to elements in the render loop via refs or data attributes
+    return () => observer.disconnect();
+  }, [readerType, readerId, location.pathname]);
+
+  // Scroll to saved progress on mount
+  useEffect(() => {
+    if (scrolledRef.current || verses.length === 0) return;
+
+    const saved = readingProgressService.get();
+    if (saved && saved.route === location.pathname) {
+      setTimeout(() => {
+        const element = document.querySelector(`[data-verse-key="${saved.verseKey}"]`);
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          // Softly highlight the ayah
+          element.classList.add('animate-pulse-gold');
+          setTimeout(() => element.classList.remove('animate-pulse-gold'), 3000);
+        }
+        scrolledRef.current = true;
+      }, 500);
+    } else {
+      scrolledRef.current = true;
+    }
+  }, [verses, location.pathname]);
+
   const playLabel = badge.toLowerCase().includes('hizb') ? 'Play Hizb' : 'Play Surah';
 
   return (
@@ -138,17 +201,17 @@ export default function QuranReader({ title, subtitle, badge, verses, onBookmark
           </div>
         </header>
 
-        <article className="mx-auto max-w-[920px] rounded-[34px] border border-white/10 bg-[linear-gradient(180deg,rgba(15,36,56,0.82),rgba(7,17,31,0.78))] p-4 shadow-[0_28px_90px_rgba(0,0,0,0.28)] backdrop-blur-2xl sm:p-6 lg:p-9">
-          <div className="rounded-[28px] border border-white/[0.06] bg-[#07111F]/34 px-4 py-6 sm:px-7 lg:px-10 lg:py-9">
+        <article className="mx-auto max-w-[920px] rounded-[34px] border border-white/10 bg-[linear-gradient(180deg,rgba(15,36,56,0.82),rgba(7,17,31,0.78))] p-3 shadow-[0_28px_90px_rgba(0,0,0,0.28)] backdrop-blur-2xl sm:p-6 lg:p-9">
+          <div className="rounded-[28px] border border-white/[0.06] bg-[#07111F]/34 px-3 py-6 sm:px-7 lg:px-10 lg:py-9">
             {displayItems.map((item) => {
               if (item.type === 'basmala') {
                 return (
                   <div
                     key={item.key}
-                    className="mb-4 rounded-[24px] border border-[#D9B45A]/20 bg-[linear-gradient(135deg,rgba(217,180,90,0.09),rgba(16,185,129,0.06))] px-4 py-7 text-center shadow-[0_0_36px_rgba(217,180,90,0.08)] sm:px-6"
+                    className="mb-6 rounded-[24px] border border-[#D9B45A]/20 bg-[linear-gradient(135deg,rgba(217,180,90,0.09),rgba(16,185,129,0.06))] px-4 py-10 text-center shadow-[0_0_36px_rgba(217,180,90,0.08)] sm:px-6"
                   >
                     <p
-                      className="font-qaloun text-[2rem] leading-[2.2] text-[#F4E7C5] sm:text-[2.45rem] lg:text-[2.8rem]"
+                      className="font-qaloun text-[2.2rem] leading-[2.4] text-[#F4E7C5] sm:text-[2.45rem] lg:text-[2.8rem]"
                       dir="rtl"
                     >
                       {item.text}
@@ -165,8 +228,16 @@ export default function QuranReader({ title, subtitle, badge, verses, onBookmark
               return (
                 <section
                   key={item.key}
+                  data-verse-key={verse.verse_key}
+                  data-ayah-no={verse.aya_no}
+                  data-surah-name={verse.sura_name_en}
+                  ref={(el) => {
+                    if (el && observerRef.current) {
+                      observerRef.current.observe(el);
+                    }
+                  }}
                   className={[
-                    'group relative rounded-[24px] border-b border-white/[0.07] px-2 py-7 transition first:pt-0 last:border-b-0 last:pb-0 sm:px-4 sm:py-8 lg:py-9',
+                    'group relative rounded-[24px] border-b border-white/[0.07] px-2 py-8 transition first:pt-0 last:border-b-0 last:pb-0 sm:px-4 sm:py-8 lg:py-10',
                     isCurrentVerse(verse)
                       ? 'border border-[#D9B45A]/25 bg-[linear-gradient(135deg,rgba(16,185,129,0.13),rgba(217,180,90,0.07))] shadow-[0_0_42px_rgba(16,185,129,0.10)]'
                       : '',
@@ -197,7 +268,7 @@ export default function QuranReader({ title, subtitle, badge, verses, onBookmark
                   </div>
 
                   <p
-                    className="font-qaloun text-right text-[2.05rem] leading-[2.35] text-white drop-shadow-[0_0_18px_rgba(242,198,109,0.06)] sm:text-[2.45rem] sm:leading-[2.45] lg:text-[2.85rem] lg:leading-[2.55]"
+                    className="font-qaloun text-right text-[2rem] leading-[2.6] text-white drop-shadow-[0_0_18px_rgba(242,198,109,0.06)] sm:text-[2.45rem] sm:leading-[2.6] lg:text-[2.85rem] lg:leading-[2.7]"
                     dir="rtl"
                   >
                     {verse.aya_text}

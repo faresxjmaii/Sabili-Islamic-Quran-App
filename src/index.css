@@ -190,4 +190,15 @@
     border: 1px solid rgba(0,168,120,0.30);
     border-radius: 12px;
   }
+
+  @keyframes pulse-gold {
+    0% { background-color: transparent; }
+    50% { background-color: rgba(217, 180, 90, 0.15); }
+    100% { background-color: transparent; }
+  }
+
+  .animate-pulse-gold {
+    animation: pulse-gold 2s ease-in-out infinite;
+    border-radius: 24px;
+  }
 }
