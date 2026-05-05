@@ -119,8 +119,8 @@ export default function QuranReader({ title, subtitle, badge, verses, onBookmark
       <div className="absolute -right-40 top-8 size-[34rem] rounded-full bg-[#10B981]/8 blur-3xl" />
       <div className="absolute -left-40 bottom-28 size-[30rem] rounded-full bg-[#D9B45A]/8 blur-3xl" />
 
-      <section className="relative z-10 mx-auto max-w-[1120px] px-2.5 py-4 sm:px-6 lg:px-8 lg:py-8 2xl:px-0">
-        <header className="sticky top-0 z-20 -mx-2.5 mb-7 border-b border-white/10 bg-[#07111F]/88 px-4 py-4 backdrop-blur-2xl sm:-mx-6 sm:px-6 lg:mx-auto lg:max-w-[960px] lg:rounded-[28px] lg:border lg:bg-[#0F2438]/80 lg:px-6 lg:shadow-[0_20px_70px_rgba(0,0,0,0.24)]">
+      <section className="relative z-10 mx-auto max-w-[1120px] px-1.5 py-4 sm:px-6 lg:px-8 lg:py-8 2xl:px-0">
+        <header className="sticky top-0 z-20 -mx-1.5 mb-7 border-b border-white/10 bg-[#07111F]/88 px-4 py-4 backdrop-blur-2xl sm:-mx-6 sm:px-6 lg:mx-auto lg:max-w-[960px] lg:rounded-[28px] lg:border lg:bg-[#0F2438]/80 lg:px-6 lg:shadow-[0_20px_70px_rgba(0,0,0,0.24)]">
           <div className="flex items-center justify-between gap-3">
             <Link
               to="/quran"
@@ -201,8 +201,8 @@ export default function QuranReader({ title, subtitle, badge, verses, onBookmark
           </div>
         </header>
 
-        <article className="mx-auto max-w-[920px] rounded-[26px] border border-white/10 bg-[linear-gradient(180deg,rgba(15,36,56,0.82),rgba(7,17,31,0.78))] p-1.5 shadow-[0_28px_90px_rgba(0,0,0,0.28)] backdrop-blur-2xl sm:rounded-[34px] sm:p-6 lg:p-9">
-          <div className="rounded-[22px] border border-white/[0.06] bg-[#07111F]/34 px-2 py-5 sm:rounded-[28px] sm:px-7 sm:py-6 md:px-8 lg:px-10 lg:py-9">
+        <article className="mx-auto max-w-[920px] rounded-[24px] border border-white/10 bg-[linear-gradient(180deg,rgba(15,36,56,0.82),rgba(7,17,31,0.78))] p-1 shadow-[0_28px_90px_rgba(0,0,0,0.28)] backdrop-blur-2xl sm:rounded-[34px] sm:p-6 lg:p-9">
+          <div className="rounded-[20px] border border-white/[0.06] bg-[#07111F]/34 px-1 py-5 sm:rounded-[28px] sm:px-7 sm:py-6 md:px-8 lg:px-10 lg:py-9">
             {displayItems.map((item) => {
               if (item.type === 'basmala') {
                 return (
@@ -237,7 +237,7 @@ export default function QuranReader({ title, subtitle, badge, verses, onBookmark
                     }
                   }}
                   className={[
-                    'group relative rounded-[20px] border-b border-white/[0.07] px-1.5 py-8 transition first:pt-1 last:border-b-0 last:pb-1 sm:rounded-[24px] sm:px-5 sm:py-10 md:px-6 lg:py-11 lg:px-7',
+                    'group relative rounded-[20px] border-b border-white/[0.07] px-1 py-8 transition first:pt-1 last:border-b-0 last:pb-1 sm:rounded-[24px] sm:px-5 sm:py-10 md:px-6 lg:py-11 lg:px-7',
                     isCurrentVerse(verse)
                       ? 'border border-[#D9B45A]/25 bg-[linear-gradient(135deg,rgba(16,185,129,0.13),rgba(217,180,90,0.07))] shadow-[0_0_42px_rgba(16,185,129,0.10)]'
                       : '',

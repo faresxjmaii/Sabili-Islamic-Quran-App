@@ -89,8 +89,22 @@
   /* Mobile-optimized Quranic text with better spacing */
   @media (max-width: 640px) {
     .font-qaloun {
-      line-height: 2.55;
+      line-height: 2.35;
       letter-spacing: 0;
+    }
+
+    .quran-ayah-text {
+      font-size: clamp(1.42rem, 5.85vw, 1.58rem);
+      line-height: 2.35;
+      word-spacing: 0.02em;
+      word-break: normal;
+      overflow-wrap: normal;
+    }
+
+    .quran-basmala-text {
+      font-size: clamp(1.72rem, 7vw, 1.95rem);
+      line-height: 2.25;
+      word-spacing: 0.02em;
     }
   }
 
