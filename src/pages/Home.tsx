@@ -269,9 +269,9 @@ export default function Home() {
   const {
     data,
     isError,
-    error,
     needsLocationPermission,
     requestLocation,
+    useManualLocation,
   } = usePrayerTimes();
   const timings = data?.data.timings;
   const nextPrayer = useNextPrayer(timings);
@@ -306,7 +306,8 @@ export default function Home() {
           <div className="py-10">
             <LocationPermissionCard
               onEnable={requestLocation}
-              errorMessage={isError ? String(error) : undefined}
+              onUseManual={useManualLocation}
+              errorMessage={isError ? t('prayerTimesUnavailable') : undefined}
             />
           </div>
         ) : (

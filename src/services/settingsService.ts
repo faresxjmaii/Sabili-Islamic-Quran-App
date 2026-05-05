@@ -1,4 +1,5 @@
 import type { AppSettings, Theme, Language, UserLocation } from '../types';
+import { normalizeCalculationMethod, normalizeMadhab } from './prayerService';
 
 const SETTINGS_KEY = 'sakina_settings';
 const SUPPORTED_LANGUAGES: Language[] = ['en', 'ar', 'it'];
@@ -25,9 +26,8 @@ export const settingsService = {
         merged.language = 'en';
       }
 
-      if (parsed.calculationMethod === 2 && parsed.location?.type !== 'manual') {
-        merged.calculationMethod = 3;
-      }
+      merged.calculationMethod = normalizeCalculationMethod(merged.calculationMethod);
+      merged.madhab = normalizeMadhab(merged.madhab);
 
       return merged;
     } catch {

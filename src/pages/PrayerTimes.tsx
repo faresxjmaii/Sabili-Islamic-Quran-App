@@ -145,9 +145,9 @@ export default function PrayerTimesPage() {
   const {
     data,
     isError,
-    error,
     needsLocationPermission,
     requestLocation,
+    useManualLocation,
   } = usePrayerTimes();
   const next = useNextPrayer(data?.data?.timings);
   const { t, prayerName } = useI18n();
@@ -199,7 +199,8 @@ export default function PrayerTimesPage() {
         <div className="relative z-10 mx-auto max-w-[1480px] px-4 py-10 sm:px-6 lg:px-8 2xl:px-0">
           <LocationPermissionCard
             onEnable={requestLocation}
-            errorMessage={isError ? String(error) : undefined}
+            onUseManual={useManualLocation}
+            errorMessage={isError ? t('prayerTimesUnavailable') : undefined}
           />
         </div>
       ) : (

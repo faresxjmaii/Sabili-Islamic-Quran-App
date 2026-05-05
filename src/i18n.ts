@@ -75,6 +75,12 @@ const translations = {
     country: 'Country',
     resetDefaults: 'Reset to Defaults',
     resetConfirm: 'Reset all settings to default?',
+    enableLocationTitle: 'Enable your location',
+    enableLocationDescription: 'Al Iselm Nour uses your authorised GPS position to calculate accurate local prayer times. No fake default city will be shown.',
+    enableLocationAction: 'Enable Location',
+    chooseCityManually: 'Choose city manually',
+    useCityManually: 'Use city',
+    prayerTimesUnavailable: 'We couldn’t calculate prayer times for this location. Please try again or choose your city manually.',
   },
   ar: {
     navHome: 'الرئيسية',
@@ -149,6 +155,12 @@ const translations = {
     country: 'البلد',
     resetDefaults: 'إعادة الإعدادات',
     resetConfirm: 'هل تريد إعادة كل الإعدادات؟',
+    enableLocationTitle: 'تفعيل الموقع',
+    enableLocationDescription: 'يستخدم Al Iselm Nour موقعك المصرّح به لحساب أوقات الصلاة المحلية بدقة. لن يتم عرض مدينة افتراضية وهمية.',
+    enableLocationAction: 'تفعيل الموقع',
+    chooseCityManually: 'اختر المدينة يدويًا',
+    useCityManually: 'استخدام المدينة',
+    prayerTimesUnavailable: 'تعذّر حساب أوقات الصلاة لهذا الموقع. جرّب مرّة أخرى أو اختر المدينة يدويًا.',
   },
   it: {
     navHome: 'Home',
@@ -223,6 +235,12 @@ const translations = {
     country: 'Paese',
     resetDefaults: 'Ripristina predefiniti',
     resetConfirm: 'Ripristinare tutte le impostazioni?',
+    enableLocationTitle: 'Abilita la tua posizione',
+    enableLocationDescription: 'Al Iselm Nour usa la tua posizione autorizzata per calcolare orari di preghiera locali accurati. Non verrà mostrata una città predefinita fittizia.',
+    enableLocationAction: 'Abilita posizione',
+    chooseCityManually: 'Scegli città manualmente',
+    useCityManually: 'Usa città',
+    prayerTimesUnavailable: 'Non siamo riusciti a calcolare gli orari di preghiera per questa posizione. Riprova o scegli la città manualmente.',
   },
 } as const;
 

@@ -4,13 +4,18 @@ import {
   fetchPrayerTimesByCity,
   fetchPrayerTimesByCoords,
   getCurrentPosition,
+  normalizeCalculationMethod,
+  normalizeMadhab,
   reverseGeocodeCoords,
+  validateCoordinates,
+  validateManualLocation,
 } from '../services/prayerService';
 import { useSettings } from '../app/useSettings';
 
 export function usePrayerTimes() {
-  const { settings } = useSettings();
+  const { settings, setCalculationMethod, setLocation } = useSettings();
   const { location, calculationMethod, madhab } = settings;
+  const [manualCandidate, setManualCandidate] = useState<{ city: string; country: string } | null>(null);
   const [permissionState, setPermissionState] = useState<PermissionState | 'unknown' | 'unsupported'>('unknown');
   const [locationRequested, setLocationRequested] = useState(() => {
     if (location.type !== 'auto') return true;
@@ -57,13 +62,69 @@ export function usePrayerTimes() {
     };
   }, [location.type]);
 
+  useEffect(() => {
+    const normalizedMethod = normalizeCalculationMethod(calculationMethod);
+    if (normalizedMethod !== calculationMethod) {
+      setCalculationMethod(normalizedMethod);
+    }
+  }, [calculationMethod, setCalculationMethod]);
+
+  const activeManualLocation =
+    manualCandidate ??
+    (location.type === 'manual'
+      ? {
+          city: location.city?.trim() ?? '',
+          country: location.country?.trim() ?? '',
+        }
+      : null);
+  const hasValidManualLocation = validateManualLocation(
+    activeManualLocation?.city,
+    activeManualLocation?.country
+  );
+  const canUseAutoLocation =
+    location.type === 'auto' && (locationRequested || permissionState === 'granted');
+
   const query = useQuery({
-    queryKey: ['prayerTimes', location, calculationMethod, madhab],
+    queryKey: [
+      'prayerTimes',
+      location.type,
+      activeManualLocation,
+      normalizeCalculationMethod(calculationMethod),
+      normalizeMadhab(madhab),
+      canUseAutoLocation,
+    ],
     queryFn: async () => {
+      const method = normalizeCalculationMethod(calculationMethod);
+      const school = normalizeMadhab(madhab);
+
+      if (activeManualLocation && hasValidManualLocation) {
+        const city = activeManualLocation.city.trim();
+        const country = activeManualLocation.country.trim();
+        const times = await fetchPrayerTimesByCity(city, country, method, school);
+
+        if (manualCandidate) {
+          setLocation({ type: 'manual', city, country });
+          setManualCandidate(null);
+        }
+
+        return {
+          ...times,
+          resolvedLocation: {
+            city,
+            country,
+            displayName: `${city}, ${country}`,
+          },
+        };
+      }
+
       if (location.type === 'auto') {
         const coords = await getCurrentPosition();
+        if (!validateCoordinates(coords.latitude, coords.longitude)) {
+          throw new Error('prayerTimesUnavailable');
+        }
+
         const [times, resolvedLocation] = await Promise.all([
-          fetchPrayerTimesByCoords(coords.latitude, coords.longitude, calculationMethod, madhab),
+          fetchPrayerTimesByCoords(coords.latitude, coords.longitude, method, school),
           reverseGeocodeCoords(coords.latitude, coords.longitude, coords.accuracy),
         ]);
 
@@ -73,35 +134,24 @@ export function usePrayerTimes() {
         };
       }
 
-      if (!location.city || !location.country) {
-        throw new Error('Please set a city and country in Settings.');
-      }
-
-      const times = await fetchPrayerTimesByCity(
-        location.city,
-        location.country,
-        calculationMethod,
-        madhab
-      );
-
-      return {
-        ...times,
-        resolvedLocation: {
-          city: location.city,
-          country: location.country,
-          displayName: `${location.city}, ${location.country}`,
-          latitude: location.latitude,
-          longitude: location.longitude,
-        },
-      };
+      throw new Error('manualLocationMissing');
     },
     staleTime: 10 * 60 * 1000,
-    enabled: location.type !== 'auto' || locationRequested || permissionState === 'granted',
+    retry: 1,
+    enabled: hasValidManualLocation || canUseAutoLocation,
   });
 
   const requestLocation = () => {
+    setManualCandidate(null);
     localStorage.setItem('sakina_location_requested', 'true');
     setLocationRequested(true);
+  };
+
+  const useManualLocation = (city: string, country: string) => {
+    const trimmedCity = city.trim();
+    const trimmedCountry = country.trim();
+    if (!validateManualLocation(trimmedCity, trimmedCountry)) return;
+    setManualCandidate({ city: trimmedCity, country: trimmedCountry });
   };
 
   return {
@@ -109,11 +159,13 @@ export function usePrayerTimes() {
     permissionState,
     locationRequested,
     needsLocationPermission:
-      location.type === 'auto' &&
       !query.data &&
-      !query.isError &&
-      !locationRequested &&
-      permissionState !== 'granted',
+      ((location.type === 'auto' &&
+        !query.isError &&
+        !locationRequested &&
+        permissionState !== 'granted') ||
+        (location.type === 'manual' && !hasValidManualLocation)),
     requestLocation,
+    useManualLocation,
   };
 }
