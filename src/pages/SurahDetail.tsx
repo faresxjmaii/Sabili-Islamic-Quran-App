@@ -20,7 +20,7 @@ export default function SurahDetail() {
       surahId: verse.sura_no,
       surahName: verse.sura_name_en,
       verseNumber: verse.aya_no,
-      verseKey: `${verse.sura_no}:${verse.aya_no}`,
+      verseKey: verse.verse_key,
     });
   };
 
@@ -30,7 +30,7 @@ export default function SurahDetail() {
   return (
     <QuranReader
       title={`${data.nameEn} - ${data.nameAr}`}
-      subtitle={`Surah ${data.id} - ${data.versesCount} verses - Full Qaloun text`}
+      subtitle={`Surah ${data.id} - ${data.versesCount} verses - Canonical Uthmani text`}
       badge={`Surah ${data.id}`}
       verses={data.verses}
       onBookmark={addBookmark}

@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { useQuranAudio } from '../app/useQuranAudio';
 import AyahAudioButton from './AyahAudioButton';
 import { getQuranDisplayItems } from '../services/quranDisplayService';
+import { getVerseKey } from '../services/quranAudioService';
 import type { QalounAyah } from '../services/quranService';
 
 type QuranReaderProps = {
@@ -41,12 +42,11 @@ export default function QuranReader({ title, subtitle, badge, verses, onBookmark
     isCurrentVerse,
   } = useQuranAudio();
   const currentVerseInReader = Boolean(
-    currentVerse &&
-      audioVerses.some((verse) => verse.sura_no === currentVerse.sura_no && verse.aya_no === currentVerse.aya_no)
+    currentVerse && audioVerses.some((verse) => getVerseKey(verse) === getVerseKey(currentVerse))
   );
   const readerIsPlaying = currentVerseInReader && status === 'playing';
   const lastPlayedVerse = lastPlayed
-    ? audioVerses.find((verse) => verse.sura_no === lastPlayed.surahNumber && verse.aya_no === lastPlayed.ayahNumber)
+    ? audioVerses.find((verse) => verse.verse_key === `${lastPlayed.surahNumber}:${lastPlayed.ayahNumber}`)
     : undefined;
   const playLabel = badge.toLowerCase().includes('hizb') ? 'Play Hizb' : 'Play Surah';
 
@@ -72,7 +72,7 @@ export default function QuranReader({ title, subtitle, badge, verses, onBookmark
           </div>
 
           <div className="mt-5 text-center">
-            <p className="text-xs font-bold uppercase tracking-[0.24em] text-[#D9B45A]">Riwayat Qaloun</p>
+            <p className="text-xs font-bold uppercase tracking-[0.24em] text-[#D9B45A]">Canonical Uthmani text</p>
             <h1 className="mx-auto mt-2 max-w-3xl text-2xl font-bold leading-tight text-white sm:text-3xl lg:text-5xl">
               {title}
             </h1>
@@ -128,7 +128,7 @@ export default function QuranReader({ title, subtitle, badge, verses, onBookmark
             </div>
 
             <p className="mt-3 text-xs leading-5 text-[#7D8DA3]">
-              Audio recitation is provided separately from the Riwayat Qaloun text.
+              Text is loaded from canonical Quran verse records. Audio recitation is provided separately.
             </p>
             {status === 'error' && errorMessage ? (
               <p className="mx-auto mt-3 max-w-xl rounded-2xl border border-[#F2C66D]/20 bg-[#D9B45A]/10 px-4 py-3 text-sm text-[#F4E7C5]">
@@ -159,7 +159,7 @@ export default function QuranReader({ title, subtitle, badge, verses, onBookmark
 
               const { verse } = item;
               const verseIndex = audioVerses.findIndex(
-                (audioVerse) => audioVerse.sura_no === verse.sura_no && audioVerse.aya_no === verse.aya_no
+                (audioVerse) => getVerseKey(audioVerse) === getVerseKey(verse)
               );
 
               return (
@@ -178,7 +178,7 @@ export default function QuranReader({ title, subtitle, badge, verses, onBookmark
                         {verse.aya_no}
                       </span>
                       <span className="text-xs font-semibold uppercase tracking-[0.16em] text-[#7D8DA3]">
-                        {verse.sura_no}:{verse.aya_no}
+                        {verse.verse_key}
                       </span>
                     </div>
                     <div className="flex items-center gap-2">

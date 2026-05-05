@@ -8,7 +8,8 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "validate:quran-openings": "node scripts/validate-quran-openings.mjs"
+    "validate:quran-openings": "node scripts/validate-quran-openings.mjs",
+    "validate:quran-text": "node scripts/validate-quran-text.mjs"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.100.9",

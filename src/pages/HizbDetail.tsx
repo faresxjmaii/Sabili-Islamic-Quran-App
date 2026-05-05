@@ -20,7 +20,7 @@ export default function HizbDetail() {
   return (
     <QuranReader
       title={data.title}
-      subtitle={`${data.subtitle} - ${data.verses.length} verses - Riwayat Qaloun`}
+      subtitle={`${data.subtitle} - ${data.verses.length} verses - Canonical Uthmani text`}
       badge={`Hizb ${data.id}`}
       verses={data.verses}
     />

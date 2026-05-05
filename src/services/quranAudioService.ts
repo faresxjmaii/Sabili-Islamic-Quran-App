@@ -13,7 +13,7 @@ export type QuranAudioReciter = {
 
 export type QuranAudioVerse = Pick<
   QalounAyah,
-  'sura_no' | 'aya_no' | 'sura_name_en' | 'sura_name_ar'
+  'sura_no' | 'aya_no' | 'sura_name_en' | 'sura_name_ar' | 'verse_key'
 >;
 
 export type QuranLastPlayed = {
@@ -63,7 +63,7 @@ export function buildAyahAudioUrl(reciter: QuranAudioReciter, surahNumber: numbe
 }
 
 export function getVerseKey(verse: QuranAudioVerse): string {
-  return `${verse.sura_no}:${verse.aya_no}`;
+  return verse.verse_key;
 }
 
 export function saveLastPlayed(
