@@ -10,6 +10,7 @@ export default function QuranMiniPlayer() {
     currentIndex,
     queueLength,
     reciter,
+    errorMessage,
     togglePlayPause,
     playNext,
     playPrevious,
@@ -20,6 +21,9 @@ export default function QuranMiniPlayer() {
 
   const isPlaying = status === 'playing';
   const isLoading = status === 'loading';
+  const playerStatus = status === 'error'
+    ? errorMessage || t('quranAudioUnavailable')
+    : `${reciter.name}${queueLength > 1 ? ` - ${currentIndex + 1}/${queueLength}` : ''}`;
 
   return (
     <div className="fixed inset-x-0 bottom-[calc(6.35rem+env(safe-area-inset-bottom))] z-[60] px-3 lg:bottom-5 lg:px-6">
@@ -32,11 +36,9 @@ export default function QuranMiniPlayer() {
             {status === 'error' ? <AlertCircle className="size-4 text-[#F2C66D]" /> : null}
           </div>
           <p className="mt-1 truncate text-sm font-bold text-white">
-            <span className="bidi-isolate">{currentVerse.sura_name_en}</span> · {t('ayah')} {currentVerse.aya_no}
+            <span className="bidi-isolate">{currentVerse.sura_name_en}</span> - {t('ayah')} {currentVerse.aya_no}
           </p>
-          <p className="truncate text-xs text-[#B8C4D6]">
-            {status === 'error' ? t('quranAudioUnavailable') : `${reciter.name}${queueLength > 1 ? ` · ${currentIndex + 1}/${queueLength}` : ''}`}
-          </p>
+          <p className="truncate text-xs text-[#B8C4D6]">{playerStatus}</p>
         </div>
 
         <div className="flex items-center gap-1.5">

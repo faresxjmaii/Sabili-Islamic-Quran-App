@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
 import { QuranAudioContext, type QuranAudioStatus } from './QuranAudioContext';
+import { useI18n } from '../i18n';
 import {
   buildAyahAudioUrl,
   getDefaultReciter,
@@ -20,6 +21,7 @@ type QuranAudioProviderProps = {
 };
 
 export function QuranAudioProvider({ children }: QuranAudioProviderProps) {
+  const { t } = useI18n();
   const [audio] = useState(() => {
     const element = new Audio();
     element.preload = 'metadata';
@@ -37,6 +39,11 @@ export function QuranAudioProvider({ children }: QuranAudioProviderProps) {
   const [lastPlayed, setLastPlayed] = useState<QuranLastPlayed | null>(() => getLastPlayed());
   const [errorMessage, setErrorMessage] = useState('');
 
+  const failAudioPlayback = useCallback(() => {
+    setStatus('error');
+    setErrorMessage(t('quranAudioUnavailable'));
+  }, [t]);
+
   const persistLastPlayed = useCallback((verse: QuranAudioVerse) => {
     const audio = audioRef.current;
     const timestamp = audio ? Math.floor(audio.currentTime) : 0;
@@ -47,7 +54,10 @@ export function QuranAudioProvider({ children }: QuranAudioProviderProps) {
     const queue = queueRef.current;
     const verse = queue[index];
     const audio = audioRef.current;
-    if (!verse || !audio) return;
+    if (!verse || !audio) {
+      failAudioPlayback();
+      return;
+    }
 
     indexRef.current = index;
     setCurrentIndex(index);
@@ -64,11 +74,8 @@ export function QuranAudioProvider({ children }: QuranAudioProviderProps) {
         setStatus('playing');
         persistLastPlayed(verse);
       })
-      .catch(() => {
-        setStatus('error');
-        setErrorMessage('Audio is unavailable for this ayah. Please try another reciter or continue reading.');
-      });
-  }, [persistLastPlayed]);
+      .catch(failAudioPlayback);
+  }, [failAudioPlayback, persistLastPlayed]);
 
   useEffect(() => {
     reciterRef.current = reciter;
@@ -83,10 +90,7 @@ export function QuranAudioProvider({ children }: QuranAudioProviderProps) {
     const handlePause = () => {
       if (!audio.ended) setStatus('paused');
     };
-    const handleError = () => {
-      setStatus('error');
-      setErrorMessage('Audio is unavailable for this ayah. Please try another reciter or continue reading.');
-    };
+    const handleError = () => failAudioPlayback();
     const handleEnded = () => {
       const nextIndex = indexRef.current + 1;
       if (nextIndex < queueRef.current.length) {
@@ -115,7 +119,7 @@ export function QuranAudioProvider({ children }: QuranAudioProviderProps) {
       audio.removeEventListener('ended', handleEnded);
       audio.removeEventListener('timeupdate', handleTimeUpdate);
     };
-  }, [persistLastPlayed, startAt]);
+  }, [failAudioPlayback, persistLastPlayed, startAt]);
 
   const playQueue = useCallback((verses: QuranAudioVerse[], startIndex = 0) => {
     if (verses.length === 0) return;
@@ -136,13 +140,13 @@ export function QuranAudioProvider({ children }: QuranAudioProviderProps) {
 
     if (audio.paused) {
       setStatus('loading');
-      void audio.play().then(() => setStatus('playing')).catch(() => setStatus('error'));
+      audio.play().then(() => setStatus('playing')).catch(failAudioPlayback);
       return;
     }
 
     audio.pause();
     setStatus('paused');
-  }, [currentVerse]);
+  }, [currentVerse, failAudioPlayback]);
 
   const playNext = useCallback(() => {
     const nextIndex = indexRef.current + 1;

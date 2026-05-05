@@ -1,5 +1,4 @@
 import { BrowserRouter as Router, Navigate, Route, Routes } from 'react-router-dom';
-import { useEffect } from 'react';
 import { QuranAudioProvider } from './app/QuranAudioProvider';
 import { SettingsProvider } from './app/SettingsContext';
 import { ErrorBoundary } from './components/ErrorBoundary';
@@ -18,20 +17,12 @@ import QiblaPage from './pages/Qibla';
 import QuranPage from './pages/Quran';
 import SettingsPage from './pages/Settings';
 import SurahDetail from './pages/SurahDetail';
-import { useI18n } from './i18n';
 
 function LocalizedAppShell() {
-  const { language, isRtl } = useI18n();
-
-  useEffect(() => {
-    document.documentElement.lang = language;
-    document.documentElement.dir = isRtl ? 'rtl' : 'ltr';
-  }, [isRtl, language]);
-
   return (
     <QuranAudioProvider>
       <Router>
-        <div className="min-h-screen overflow-x-hidden bg-[#07111F] text-[#F8FAFC]" dir={isRtl ? 'rtl' : 'ltr'} lang={language}>
+        <div className="min-h-screen overflow-x-hidden bg-[#07111F] text-[#F8FAFC]">
           <div className="relative min-h-screen overflow-hidden bg-[#07111F]">
             <div className="app-atmosphere pointer-events-none fixed inset-0 z-0" aria-hidden="true" />
             <TopNav />
