@@ -108,12 +108,10 @@
   .quran-ayah-marker {
     display: inline;
     margin-inline-start: 0.32em;
-    border: 0 !important;
-    background: transparent;
     color: #F2C66D;
-    font-family: var(--font-sans);
-    font-size: 0.64em;
-    font-weight: 700;
+    font-family: "UthmanicHafs", "Amiri Quran", "Traditional Arabic", serif;
+    font-size: 0.7em;
+    font-weight: 400;
     line-height: 1;
     vertical-align: baseline;
     white-space: nowrap;
@@ -142,7 +140,7 @@
 
     .quran-ayah-marker {
       margin-inline-start: 0.28em;
-      font-size: 0.62em;
+      font-size: 0.68em;
     }
   }
 
