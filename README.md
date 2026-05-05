@@ -2,6 +2,8 @@
 
 A premium Islamic web app for prayer times, Quran reading in Riwayat Qaloun, 60 Hizb browsing, Adhkar, Qibla tools, and a multilingual worship experience.
 
+Live app: [https://al-iselm-nour.vercel.app](https://al-iselm-nour.vercel.app)
+
 ## Features
 
 - Prayer times with location-aware calculation and manual fallback support
