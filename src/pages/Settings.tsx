@@ -80,10 +80,10 @@ export default function SettingsPage() {
           className="w-full rounded-md bg-slate-200 dark:bg-slate-700 p-2"
         >
           {[
-            { id: 0, name: 'Shia Ithna‑Ashari' },
-            { id: 2, name: 'ISNA (North America)' },
-            { id: 3, name: 'Muslim World League' },
-            { id: 4, name: 'Umm Al‑Qura, Makkah' },
+            { id: 0, name: t('shiaMethod') },
+            { id: 2, name: t('isnaMethod') },
+            { id: 3, name: t('mwlMethod') },
+            { id: 4, name: t('ummAlQuraMethod') },
           ].map((m) => (
             <option key={m.id} value={m.id}>
               {m.name}
@@ -99,8 +99,8 @@ export default function SettingsPage() {
           onChange={(e) => setMadhab(Number(e.target.value))}
           className="w-full rounded-md bg-slate-200 dark:bg-slate-700 p-2"
         >
-          <option value={0}>Shafi / Maliki / Hanbali</option>
-          <option value={1}>Hanafi</option>
+          <option value={0}>{t('shafiMadhhab')}</option>
+          <option value={1}>{t('hanafiMadhhab')}</option>
         </select>
       </section>
 

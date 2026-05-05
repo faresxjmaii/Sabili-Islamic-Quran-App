@@ -4,10 +4,12 @@ import QuranReader from '../components/QuranReader';
 import { bookmarkService, fetchQalounSurah } from '../services/quranService';
 import type { QalounAyah } from '../services/quranService';
 import { VerseSkeleton } from '../components/Skeleton';
+import { useI18n } from '../i18n';
 
 export default function SurahDetail() {
   const { surahId } = useParams<{ surahId: string }>();
   const surahIdNum = Number(surahId);
+  const { t } = useI18n();
 
   const { data, isLoading, isError, error } = useQuery({
     queryKey: ['qaloun-surah', surahIdNum],
@@ -30,8 +32,8 @@ export default function SurahDetail() {
   return (
     <QuranReader
       title={`${data.nameEn} - ${data.nameAr}`}
-      subtitle={`Surah ${data.id} - ${data.versesCount} verses - Canonical Uthmani text`}
-      badge={`Surah ${data.id}`}
+      subtitle={`${t('surah')} ${data.id} - ${data.versesCount} ${t('verses')} - ${t('canonicalUthmaniText')}`}
+      badge={`${t('surah')} ${data.id}`}
       verses={data.verses}
       onBookmark={addBookmark}
       readerType="surah"

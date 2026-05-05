@@ -1,10 +1,22 @@
-import { useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
-import { ChevronLeft, Check, RotateCcw } from 'lucide-react';
+import { useMemo, useState } from 'react';
+import { Link, useParams } from 'react-router-dom';
+import { Check, ChevronLeft, RotateCcw } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { getAdhkarByCategory } from '../data/adhkar';
 import type { DhikrCategory } from '../data/adhkar';
-import { useI18n } from '../i18n';
+import { useI18n, type TranslationKey } from '../i18n';
+
+const titleKeys: Record<DhikrCategory, TranslationKey> = {
+  morning: 'morningAdhkar',
+  evening: 'eveningAdhkar',
+  'after-prayer': 'afterPrayerAdhkar',
+};
+
+const subtitleKeys: Record<DhikrCategory, TranslationKey> = {
+  morning: 'morningAdhkarSubtitle',
+  evening: 'eveningAdhkarSubtitle',
+  'after-prayer': 'afterPrayerAdhkarSubtitle',
+};
 
 function readSavedCounts(category?: DhikrCategory): Record<string, number> {
   if (!category) return {};
@@ -16,14 +28,15 @@ function readSavedCounts(category?: DhikrCategory): Record<string, number> {
 
 export default function AdhkarDetail() {
   const { category } = useParams<{ category: DhikrCategory }>();
-  const { t } = useI18n();
-  const adhkarList = getAdhkarByCategory(category as DhikrCategory);
-  
-  const [counts, setCounts] = useState<Record<string, number>>(() => readSavedCounts(category as DhikrCategory));
+  const { t, language, isRtl } = useI18n();
+  const activeCategory = category as DhikrCategory;
+  const adhkarList = useMemo(() => getAdhkarByCategory(activeCategory), [activeCategory]);
+
+  const [counts, setCounts] = useState<Record<string, number>>(() => readSavedCounts(activeCategory));
 
   const saveProgress = (newCounts: Record<string, number>) => {
     const today = new Date().toDateString();
-    localStorage.setItem(`adhkar-progress-${category}-${today}`, JSON.stringify(newCounts));
+    localStorage.setItem(`adhkar-progress-${activeCategory}-${today}`, JSON.stringify(newCounts));
   };
 
   const handleIncrement = (id: string, max: number) => {
@@ -44,43 +57,41 @@ export default function AdhkarDetail() {
     });
   };
 
-  if (adhkarList.length === 0) {
+  if (!activeCategory || adhkarList.length === 0) {
     return <div className="p-8 text-center text-white">{t('categoryMissing')}</div>;
   }
 
-  const titleMap: Record<DhikrCategory, { ar: string, fr: string }> = {
-    'morning': { ar: 'أذكار الصباح', fr: 'Adhkar du Matin' },
-    'evening': { ar: 'أذكار المساء', fr: 'Adhkar du Soir' },
-    'after-prayer': { ar: 'أذكار بعد الصلاة', fr: 'Adhkar Après la Prière' }
-  };
-
   return (
-    <div className="min-h-screen pt-4 pb-28 px-4 lg:px-8 max-w-3xl mx-auto">
-      <div className="flex items-center gap-4 mb-8">
-        <Link 
-          to="/adhkar" 
-          className="w-10 h-10 rounded-full flex items-center justify-center bg-white/5 border border-white/10 text-white hover:bg-white/10 transition"
+    <div className="mx-auto min-h-screen max-w-3xl px-4 pb-28 pt-4 lg:px-8">
+      <div className="mb-5 flex items-center gap-3">
+        <Link
+          to="/adhkar"
+          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white transition hover:bg-white/10"
+          aria-label={t('navAdhkar')}
         >
-          <ChevronLeft size={20} />
+          <ChevronLeft className={`h-5 w-5 ${isRtl ? 'rotate-180' : ''}`} />
         </Link>
-        <div>
-          <h1 className="text-2xl font-bold text-white font-arabic" dir="rtl">{titleMap[category as DhikrCategory].ar}</h1>
-          <p className="text-[#B8C4D6] text-sm">{titleMap[category as DhikrCategory].fr}</p>
+        <div className="min-w-0">
+          <h1 className="truncate text-2xl font-bold text-white">{t(titleKeys[activeCategory])}</h1>
+          <p className="text-sm text-[#B8C4D6]">{t(subtitleKeys[activeCategory])}</p>
         </div>
       </div>
 
-      <div className="space-y-6">
+      <div className="space-y-4">
         {adhkarList.map((item, index) => {
           const currentCount = counts[item.id] || 0;
           const isDone = currentCount >= item.repeats;
+          const repeatLabel = item.repeats === 1 ? t('repeat') : t('repeats');
 
           return (
-            <motion.div 
+            <motion.div
               key={item.id}
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.1 }}
-              className={`rounded-3xl p-6 relative overflow-hidden transition-all duration-300 ${isDone ? 'border-[#00A878]/30 shadow-[0_0_30px_rgba(0,168,120,0.1)]' : 'border-white/10 shadow-lg'}`}
+              transition={{ delay: index * 0.035 }}
+              className={`relative overflow-hidden rounded-[22px] p-4 transition-all duration-300 sm:p-5 ${
+                isDone ? 'border-[#00A878]/30 shadow-[0_0_30px_rgba(0,168,120,0.1)]' : 'border-white/10 shadow-lg'
+              }`}
               style={{
                 background: isDone ? 'rgba(0, 168, 120, 0.05)' : 'rgba(15, 36, 56, 0.85)',
                 borderWidth: '1px',
@@ -88,55 +99,67 @@ export default function AdhkarDetail() {
                 backdropFilter: 'blur(16px)',
               }}
             >
-              {isDone && (
-                <div className="absolute top-0 right-0 w-32 h-32 bg-[#00A878]/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none" />
-              )}
-              
-              <div className="flex justify-between items-start mb-6">
-                <span className="text-[#00A878] text-sm font-semibold">{index + 1} / {adhkarList.length}</span>
-                {item.reference && (
-                  <span className="text-[#6B7F96] text-xs px-2 py-1 rounded-md bg-white/5">{item.reference}</span>
-                )}
+              {isDone ? (
+                <div className="pointer-events-none absolute right-0 top-0 h-28 w-28 translate-x-1/2 -translate-y-1/2 rounded-full bg-[#00A878]/10 blur-3xl" />
+              ) : null}
+
+              <div className="relative z-10 mb-3 flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <span className="text-xs font-semibold text-[#00A878]">
+                    {index + 1} / {adhkarList.length}
+                  </span>
+                  {item.title ? <h2 className="mt-1 truncate text-sm font-semibold text-white">{item.title}</h2> : null}
+                </div>
+                <span className="shrink-0 rounded-full border border-[#D9B45A]/20 bg-[#D9B45A]/10 px-2.5 py-1 text-xs font-semibold text-[#F2C66D]">
+                  {item.repeats} {repeatLabel}
+                </span>
               </div>
 
-              <p className="font-arabic text-3xl leading-loose text-[#F2C66D] text-right mb-6" dir="rtl">
+              <p className="relative z-10 mb-4 text-right font-arabic text-[1.28rem] leading-[2.05] text-[#F4E7C5] sm:text-2xl" dir="rtl">
                 {item.arabic}
               </p>
 
-              <p className="text-[#B8C4D6] text-sm leading-relaxed mb-8">
-                {item.translation}
-              </p>
+              <div className="relative z-10 mb-4 flex flex-wrap items-center gap-2 text-xs text-[#6B7F96]">
+                {item.reference ? (
+                  <span className="rounded-md bg-white/5 px-2 py-1">
+                    {t('source')}: <span className="text-[#B8C4D6]">{item.reference}</span>
+                  </span>
+                ) : null}
+                {language !== 'ar' ? <span className="leading-5 text-[#B8C4D6]">{item.translation}</span> : null}
+              </div>
 
-              <div className="flex items-center justify-between border-t border-white/5 pt-4 mt-auto">
-                <div className="flex items-center gap-3">
-                   <button 
+              <div className="relative z-10 flex items-center justify-between border-t border-white/5 pt-3">
+                <div className="flex items-center gap-2">
+                  <button
                     onClick={() => handleReset(item.id)}
-                    className="p-2 text-[#6B7F96] hover:text-white transition"
+                    className="grid h-9 w-9 place-items-center rounded-xl text-[#6B7F96] transition hover:bg-white/5 hover:text-white"
                     title={t('reset')}
-                   >
-                     <RotateCcw size={16} />
-                   </button>
-                   <span className="text-white font-medium tabular-nums">
-                     {currentCount} <span className="text-[#6B7F96]">/ {item.repeats}</span>
-                   </span>
+                    type="button"
+                  >
+                    <RotateCcw size={15} />
+                  </button>
+                  <span className="font-medium tabular-nums text-white">
+                    {currentCount} <span className="text-[#6B7F96]">/ {item.repeats}</span>
+                  </span>
                 </div>
-                
+
                 <button
                   onClick={() => handleIncrement(item.id, item.repeats)}
                   disabled={isDone}
-                  className={`relative flex items-center justify-center w-32 h-12 rounded-xl font-bold transition-all ${
-                    isDone 
-                      ? 'bg-[#00A878]/20 text-[#00A878] border border-[#00A878]/30' 
-                      : 'bg-gradient-to-r from-[#00A878] to-[#047857] text-white shadow-[0_8px_24px_rgba(0,168,120,0.35)] hover:scale-105 active:scale-95'
+                  className={`relative flex h-10 min-w-24 items-center justify-center rounded-xl px-4 text-sm font-bold transition-all ${
+                    isDone
+                      ? 'border border-[#00A878]/30 bg-[#00A878]/20 text-[#00A878]'
+                      : 'bg-gradient-to-r from-[#00A878] to-[#047857] text-white shadow-[0_8px_24px_rgba(0,168,120,0.28)] hover:scale-105 active:scale-95'
                   }`}
+                  type="button"
                 >
                   {isDone ? (
-                    <div className="flex items-center gap-2">
-                      <Check size={18} />
-                      <span>{t('done')}</span>
-                    </div>
+                    <span className="flex items-center gap-2">
+                      <Check size={17} />
+                      {t('done')}
+                    </span>
                   ) : (
-                    <span>{t('counter')}</span>
+                    t('counter')
                   )}
                 </button>
               </div>

@@ -59,7 +59,7 @@ export default function QiblaPage() {
   const [location, setLocation] = useState<QiblaLocation | null>(null);
   const [heading, setHeading] = useState<number | null>(null);
   const [city, setCity] = useState('');
-  const [status, setStatus] = useState('Use your location or search a city to find the Qibla.');
+  const [status, setStatus] = useState(t('qiblaIntroStatus'));
   const [loading, setLoading] = useState(false);
 
   const bearing = useMemo(
@@ -84,7 +84,7 @@ export default function QiblaPage() {
         accuracy: coords.accuracy,
         label,
       });
-      setStatus('Qibla direction calculated from your GPS position.');
+      setStatus(t('qiblaGpsCalculated'));
     } catch {
       setStatus(t('locationAccessUnavailable'));
     } finally {
@@ -95,11 +95,11 @@ export default function QiblaPage() {
   const handleCitySearch = async () => {
     if (!city.trim()) return;
     setLoading(true);
-    setStatus('Searching city...');
+    setStatus(t('searchingCity'));
     try {
       const result = await searchCity(city.trim());
       setLocation(result);
-      setStatus('Qibla direction calculated from city location.');
+      setStatus(t('qiblaCityCalculated'));
     } catch (error) {
       setStatus(error instanceof Error ? error.message : 'City search failed.');
     } finally {
@@ -116,7 +116,7 @@ export default function QiblaPage() {
       if (typeof orientationEvent.requestPermission === 'function') {
         const permission = await orientationEvent.requestPermission();
         if (permission !== 'granted') {
-          setStatus('Compass permission was not granted.');
+          setStatus(t('compassPermissionDenied'));
           return;
         }
       }
@@ -127,9 +127,9 @@ export default function QiblaPage() {
       window.addEventListener('deviceorientation', (event) => {
         if (typeof event.alpha === 'number') setHeading(360 - event.alpha);
       });
-      setStatus('Device compass enabled. Rotate your phone slowly for best accuracy.');
+      setStatus(t('compassEnabled'));
     } catch {
-      setStatus('Device compass is not available in this browser.');
+      setStatus(t('compassUnavailable'));
     }
   };
 
@@ -141,10 +141,10 @@ export default function QiblaPage() {
 
       <section className="relative z-10 mx-auto max-w-[1180px] px-4 py-6 sm:px-6 lg:px-8 lg:py-12 2xl:px-0">
         <div className="mb-8 text-center">
-          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[#D9B45A]">Direction to Makkah</p>
-          <h1 className="mt-3 text-4xl font-bold text-white lg:text-5xl">Qibla Compass</h1>
+          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[#D9B45A]">{t('directionToMakkah')}</p>
+          <h1 className="mt-3 text-4xl font-bold text-white lg:text-5xl">{t('qiblaCompass')}</h1>
           <p className="mx-auto mt-4 max-w-2xl text-sm leading-6 text-[#B8C4D6]">
-            Use GPS for the most accurate Qibla direction, or search your city manually.
+            {t('qiblaDescription')}
           </p>
         </div>
 
@@ -159,7 +159,7 @@ export default function QiblaPage() {
               >
                 <span className="absolute inset-0 translate-x-[-120%] bg-gradient-to-r from-transparent via-white/30 to-transparent transition duration-700 group-hover:translate-x-[120%]" />
                 <LocateFixed className="relative size-4" />
-                <span className="relative">{loading ? t('detectingLocation') : 'Use Current Location'}</span>
+                <span className="relative">{loading ? t('detectingLocation') : t('useCurrentLocation')}</span>
               </button>
               <button
                 onClick={enableDeviceCompass}
@@ -167,12 +167,12 @@ export default function QiblaPage() {
                 type="button"
               >
                 <Smartphone className="size-4 text-[#10B981]" />
-                Phone Compass
+                {t('phoneCompass')}
               </button>
             </div>
 
             <div className="mt-5 rounded-[24px] border border-white/10 bg-white/[0.035] p-4">
-              <label className="mb-3 block text-sm font-semibold text-white">Search city manually</label>
+              <label className="mb-3 block text-sm font-semibold text-white">{t('searchCityManually')}</label>
               <div className="flex flex-col gap-3 sm:flex-row">
                 <input
                   value={city}
@@ -190,7 +190,7 @@ export default function QiblaPage() {
                   type="button"
                 >
                   <Search className="size-4" />
-                  Search
+                  {t('search')}
                 </button>
               </div>
             </div>
@@ -198,11 +198,11 @@ export default function QiblaPage() {
             <div className="mt-6 space-y-3 rounded-[24px] border border-white/10 bg-[#07111F]/48 p-5">
               <p className="flex items-center gap-2 text-sm font-semibold text-white">
                 <MapPin className="size-4 text-[#10B981]" />
-                {location?.label ?? 'No location selected'}
+                {location?.label ?? t('noLocationSelected')}
               </p>
               <p className="text-sm leading-6 text-[#B8C4D6]">{status}</p>
               {location?.accuracy ? (
-                <p className="text-xs text-[#7D8DA3]">GPS accuracy: about {Math.round(location.accuracy)} meters.</p>
+                <p className="text-xs text-[#7D8DA3]">{t('gpsAccuracy', { meters: Math.round(location.accuracy) })}</p>
               ) : null}
             </div>
           </div>
@@ -231,12 +231,12 @@ export default function QiblaPage() {
             </div>
 
             <div className="relative mt-8 text-center">
-              <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[#D9B45A]">Qibla Bearing</p>
+              <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[#D9B45A]">{t('qiblaBearing')}</p>
               <p className="mt-2 text-4xl font-bold tabular-nums text-white">
                 {bearing === null ? '--' : `${Math.round(bearing)}°`}
               </p>
               <p className="mt-2 text-sm text-[#B8C4D6]">
-                {heading === null ? 'Bearing from true north.' : 'Compass adjusted using phone heading.'}
+                {heading === null ? t('bearingFromNorth') : t('bearingWithCompass')}
               </p>
             </div>
           </motion.div>

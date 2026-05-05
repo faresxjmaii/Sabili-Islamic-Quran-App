@@ -1,14 +1,15 @@
 import { AlertCircle, ChevronLeft, ChevronRight, Pause, Play, X } from 'lucide-react';
 import { useQuranAudio } from '../app/useQuranAudio';
+import { useI18n } from '../i18n';
 
 export default function QuranMiniPlayer() {
+  const { t, isRtl } = useI18n();
   const {
     status,
     currentVerse,
     currentIndex,
     queueLength,
     reciter,
-    errorMessage,
     togglePlayPause,
     playNext,
     playPrevious,
@@ -26,15 +27,15 @@ export default function QuranMiniPlayer() {
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
             <span className="rounded-full border border-[#D9B45A]/25 bg-[#D9B45A]/10 px-2 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-[#F2C66D]">
-              Audio recitation
+              {t('audioRecitation')}
             </span>
             {status === 'error' ? <AlertCircle className="size-4 text-[#F2C66D]" /> : null}
           </div>
           <p className="mt-1 truncate text-sm font-bold text-white">
-            {currentVerse.sura_name_en} · Ayah {currentVerse.aya_no}
+            <span className="bidi-isolate">{currentVerse.sura_name_en}</span> · {t('ayah')} {currentVerse.aya_no}
           </p>
           <p className="truncate text-xs text-[#B8C4D6]">
-            {status === 'error' ? errorMessage : `${reciter.name}${queueLength > 1 ? ` · ${currentIndex + 1}/${queueLength}` : ''}`}
+            {status === 'error' ? t('quranAudioUnavailable') : `${reciter.name}${queueLength > 1 ? ` · ${currentIndex + 1}/${queueLength}` : ''}`}
           </p>
         </div>
 
@@ -44,15 +45,15 @@ export default function QuranMiniPlayer() {
             disabled={currentIndex <= 0}
             className="grid size-10 place-items-center rounded-2xl border border-white/10 bg-white/[0.04] text-[#DCE5EF] transition hover:bg-white/[0.08] disabled:cursor-not-allowed disabled:opacity-35"
             type="button"
-            aria-label="Previous ayah"
+            aria-label={t('previousAyah')}
           >
-            <ChevronLeft className="size-5" />
+            {isRtl ? <ChevronRight className="size-5" /> : <ChevronLeft className="size-5" />}
           </button>
           <button
             onClick={togglePlayPause}
             className="grid size-11 place-items-center rounded-2xl border border-[#F2C66D]/35 bg-[linear-gradient(135deg,#F2C66D,#D9B45A)] text-[#07111F] shadow-[0_14px_36px_rgba(217,180,90,0.18)]"
             type="button"
-            aria-label={isPlaying ? 'Pause Quran audio' : 'Play Quran audio'}
+            aria-label={isPlaying ? t('pauseQuranAudio') : t('playQuranAudio')}
           >
             {isPlaying || isLoading ? <Pause className="size-5 fill-current" /> : <Play className="size-5 fill-current" />}
           </button>
@@ -61,15 +62,15 @@ export default function QuranMiniPlayer() {
             disabled={currentIndex >= queueLength - 1}
             className="grid size-10 place-items-center rounded-2xl border border-white/10 bg-white/[0.04] text-[#DCE5EF] transition hover:bg-white/[0.08] disabled:cursor-not-allowed disabled:opacity-35"
             type="button"
-            aria-label="Next ayah"
+            aria-label={t('nextAyah')}
           >
-            <ChevronRight className="size-5" />
+            {isRtl ? <ChevronLeft className="size-5" /> : <ChevronRight className="size-5" />}
           </button>
           <button
             onClick={closePlayer}
             className="grid size-10 place-items-center rounded-2xl border border-white/10 bg-white/[0.04] text-[#B8C4D6] transition hover:bg-white/[0.08] hover:text-white"
             type="button"
-            aria-label="Close audio player"
+            aria-label={t('closeAudioPlayer')}
           >
             <X className="size-4" />
           </button>

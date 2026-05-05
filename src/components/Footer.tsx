@@ -1,13 +1,17 @@
 import { Link } from 'react-router-dom';
 import { BookOpen, Compass, Sparkles, Wind } from 'lucide-react';
-
-const columns = [
-  { title: 'Links', items: ['Home', 'Prayer Times', 'Quran', 'Adhkar'] },
-  { title: 'About', items: ['About Us', 'Features', 'Blog', 'Contact'] },
-  { title: 'Support', items: ['Help Center', 'Privacy Policy', 'Terms of Service'] },
-];
+import { useI18n } from '../i18n';
 
 export default function Footer() {
+  const { t, language } = useI18n();
+  const columns = [
+    { title: t('quickActions'), items: [t('navHome'), t('navPrayer'), t('navQuran'), t('navAdhkar')] },
+    { title: t('about'), items: [t('aboutTitle'), t('settingsPrefs'), t('qibla'), t('navSettings')] },
+    { title: t('reminders'), items: [t('dailySalat'), t('dailyAyah'), t('lastRead'), t('continueListening')] },
+  ];
+  const remembrance =
+    language === 'ar' ? 'اذْكُرُوا اللَّهَ ذِكْرًا كَثِيرًا' : 'Remember Allah with much remembrance.';
+
   return (
     <footer className="relative hidden overflow-hidden border-t border-white/10 bg-[#06101D] lg:block">
       <div className="absolute inset-0 bg-pattern opacity-70" />
@@ -24,9 +28,7 @@ export default function Footer() {
             </span>
             <span className="text-3xl font-semibold text-white">Al Iselm Nour</span>
           </Link>
-          <p className="max-w-[260px] text-sm leading-6 text-[#B8C4D6]">
-            Your companion for a mindful spiritual journey.
-          </p>
+          <p className="max-w-[260px] text-sm leading-6 text-[#B8C4D6]">{t('aboutP1')}</p>
         </div>
 
         {columns.map((column) => (
@@ -34,29 +36,29 @@ export default function Footer() {
             <h3 className="mb-3 text-sm font-semibold text-white">{column.title}</h3>
             <div className="space-y-2.5">
               {column.items.map((item) => (
-                <a key={item} href="#" className="block text-sm text-[#B8C4D6] transition hover:text-white">
+                <span key={item} className="block text-sm text-[#B8C4D6]">
                   {item}
-                </a>
+                </span>
               ))}
             </div>
           </div>
         ))}
 
-        <div className="border-l border-white/10 pl-10">
-          <h3 className="mb-4 text-sm font-semibold text-white">Connect With Us</h3>
+        <div className="border-l border-white/10 pl-10 rtl:border-l-0 rtl:border-r rtl:pl-0 rtl:pr-10">
+          <h3 className="mb-4 text-sm font-semibold text-white">{t('peacefulWorship')}</h3>
           <div className="mb-6 flex gap-3">
             {[BookOpen, Wind, Compass].map((Icon, index) => (
-              <a
+              <span
                 key={index}
-                href="#"
-                className="grid size-10 place-items-center rounded-2xl border border-white/10 bg-white/[0.04] text-[#B8C4D6] transition hover:border-emerald-300/30 hover:text-[#10B981]"
+                className="grid size-10 place-items-center rounded-2xl border border-white/10 bg-white/[0.04] text-[#B8C4D6]"
               >
                 <Icon className="size-4" />
-              </a>
+              </span>
             ))}
           </div>
-          <p className="font-arabic text-xl text-[#F2C66D]" dir="rtl">اذكروا الله ذكرا كثيرا</p>
-          <p className="mt-2 text-xs text-[#7D8DA3]">Remember Allah with much remembrance.</p>
+          <p className="font-arabic text-xl text-[#F2C66D]" dir={language === 'ar' ? 'rtl' : 'ltr'}>
+            {remembrance}
+          </p>
         </div>
       </div>
     </footer>

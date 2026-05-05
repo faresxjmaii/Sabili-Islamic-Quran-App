@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@700&family=Sora:wght@800&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Alexandria:wght@300;400;500;600;700;800&family=Cormorant+Garamond:wght@700&family=Sora:wght@800&display=swap");
 @import "tailwindcss";
 
 @font-face {
@@ -41,8 +41,8 @@
   --color-text-muted: #6B7F96;
 
   /* === Typography === */
-  --font-sans: "Inter", system-ui, sans-serif;
-  --font-arabic: "Amiri", "Noto Naskh Arabic", serif;
+  --font-sans: "Alexandria", "Inter", system-ui, sans-serif;
+  --font-arabic: "Alexandria", "Noto Sans Arabic", "Tahoma", sans-serif;
 }
 
 /* ── Base Reset ───────────────────────────────────────────── */
@@ -61,6 +61,14 @@
     @apply m-0 p-0 antialiased min-h-screen;
     background-color: var(--color-bg);
   }
+
+  :lang(ar) body,
+  :lang(ar) button,
+  :lang(ar) input,
+  :lang(ar) select,
+  :lang(ar) textarea {
+    font-family: var(--font-arabic);
+  }
 }
 
 /* ── Utilities ────────────────────────────────────────────── */
@@ -68,7 +76,20 @@
   /* Arabic text */
   .font-arabic {
     font-family: var(--font-arabic);
-    line-height: 2.0;
+    line-height: 1.8;
+  }
+
+  .font-ui-ar {
+    font-family: var(--font-arabic);
+    line-height: 1.75;
+  }
+
+  .bidi-isolate {
+    unicode-bidi: isolate;
+  }
+
+  [dir="rtl"] .rtl\:flip-x {
+    transform: scaleX(-1);
   }
 
   .font-qaloun {
@@ -118,15 +139,14 @@
   }
 
   .quran-rub-el-hizb {
-    display: inline;
-    margin-inline: 0.18em;
-    color: #F4E7C5;
+    display: inline-block;
+    margin-inline: 0.24em;
+    color: #F2C66D;
     font-family: "UthmanicHafs", "Amiri Quran", "Traditional Arabic", serif;
-    font-size: 0.82em;
+    font-size: 0.72em;
     line-height: 1;
-    vertical-align: baseline;
+    vertical-align: 0.04em;
     white-space: nowrap;
-    text-shadow: 0 0 14px rgba(242, 198, 109, 0.16);
   }
 
   /* Mobile-optimized Quranic text with better spacing */
@@ -156,8 +176,8 @@
     }
 
     .quran-rub-el-hizb {
-      margin-inline: 0.14em;
-      font-size: 0.8em;
+      margin-inline: 0.18em;
+      font-size: 0.68em;
     }
   }
 

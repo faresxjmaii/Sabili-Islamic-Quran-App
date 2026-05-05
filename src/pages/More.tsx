@@ -34,7 +34,7 @@ export default function MorePage(){
           className={cn('p-4 glass rounded-xl hover:scale-[1.02] transition flex items-center gap-2')}
         >
           <Info size={20} />
-          <span>About</span>
+          <span>{t('about')}</span>
         </Link>
       </div>
     </motion.div>

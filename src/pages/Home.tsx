@@ -51,11 +51,12 @@ const countryFr: Record<string, string> = {
 
 
 
-function formatLocationFrench(city?: string, country?: string, displayName?: string) {
+function formatLocation(city?: string, country?: string, displayName?: string) {
+  const knownCountry = country ? Object.prototype.hasOwnProperty.call(countryFr, country) : false;
   if (city || country) {
-    return [city, country ? countryFr[country] ?? country : undefined].filter(Boolean).join(', ');
+    return [city, knownCountry ? country : country].filter(Boolean).join(', ');
   }
-  return displayName ?? 'Localisation';
+  return displayName;
 }
 
 
@@ -227,12 +228,12 @@ function DailyAyahCard() {
           <Link to="/quran" className="text-xs font-semibold text-[#F2C66D]">{t('viewInQuran')}</Link>
         </div>
         <p className="font-arabic text-right text-xl leading-[1.9] text-white drop-shadow-[0_0_22px_rgba(242,198,109,0.18)]" dir="rtl">
-          وَلَا تَهِنُوا وَلَا تَحْزَنُوا وَأَنتُمُ الأَعْلَوْنَ إِن كُنتُم مُّؤْمِنِينَ
+          {t('dailyAyahText')}
         </p>
         <p className="mt-3 text-sm leading-6 text-[#DCE5EF]">
-          Do not lose hope, nor be sad. You will be superior if you are true believers.
+          {t('dailyAyahMeaning')}
         </p>
-        <p className="mt-3 text-sm font-medium text-[#D9B45A]">Aal-Imran (3:139)</p>
+        <p className="mt-3 text-sm font-medium text-[#D9B45A]">{t('dailyAyahReference')}</p>
       </div>
     </section>
   );
@@ -287,7 +288,7 @@ export default function Home() {
   const countdown = nextPrayer?.timeLeft ?? '00:00:00';
 
 
-  const locationFrench = formatLocationFrench(
+  const locationName = formatLocation(
     data?.resolvedLocation?.city,
     data?.resolvedLocation?.country,
     data?.resolvedLocation?.displayName
@@ -328,7 +329,7 @@ export default function Home() {
               countdown={countdown}
               sunriseTime={timings?.Sunrise}
               hijriDate={hijriDate}
-              locationName={locationFrench}
+              locationName={locationName}
               labels={{
                 hijriDate: t('hijriDate'),
                 sunrise: t('sunrise'),

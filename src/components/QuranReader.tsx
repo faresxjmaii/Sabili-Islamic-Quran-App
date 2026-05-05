@@ -7,6 +7,7 @@ import { getQuranDisplayItems } from '../services/quranDisplayService';
 import { getVerseKey } from '../services/quranAudioService';
 import type { QalounAyah } from '../services/quranService';
 import { readingProgressService, type ReaderType } from '../services/readingProgressService';
+import { useI18n } from '../i18n';
 
 type QuranReaderProps = {
   title: string;
@@ -25,30 +26,23 @@ function toArabicIndicNumber(value: number): string {
 const RUB_EL_HIZB = '\u06DE';
 
 function getCleanAyahText(text: string): string {
-  return Array.from(text)
-    .filter((char) => {
-      const codePoint = char.codePointAt(0) ?? 0;
-      const isQuranAnnotation = codePoint >= 0x06d6 && codePoint <= 0x06ed;
-      return !isQuranAnnotation || char === RUB_EL_HIZB;
-    })
-    .join('')
+  return text
+    .replace(/[\u06D6-\u06ED]/g, (marker) => (marker === RUB_EL_HIZB ? ` ${RUB_EL_HIZB} ` : ''))
     .replace(/\s+/g, ' ')
     .trim();
 }
 
 function renderAyahText(text: string) {
-  return getCleanAyahText(text)
-    .split(RUB_EL_HIZB)
-    .flatMap((part, index) =>
-      index === 0
-        ? [part]
-        : [
-            <span key={`rub-el-hizb-${index}`} className="quran-rub-el-hizb" aria-label="Rub el Hizb">
-              {RUB_EL_HIZB}
-            </span>,
-            part,
-          ]
-    );
+  return text.split(RUB_EL_HIZB).map((part, index, parts) => (
+    <span key={`${part}-${index}`}>
+      {part}
+      {index < parts.length - 1 ? (
+        <span className="quran-rub-el-hizb" aria-label="Rub el Hizb">
+          {RUB_EL_HIZB}
+        </span>
+      ) : null}
+    </span>
+  ));
 }
 
 function ReaderStat({ icon: Icon, label }: { icon: typeof Hash; label: string }) {
@@ -61,6 +55,7 @@ function ReaderStat({ icon: Icon, label }: { icon: typeof Hash; label: string })
 }
 
 export default function QuranReader({ title, subtitle, badge, verses, onBookmark, readerType, readerId }: QuranReaderProps) {
+  const { t, isRtl } = useI18n();
   const { audioVerses, displayItems } = useMemo(() => getQuranDisplayItems(verses), [verses]);
   const location = useLocation();
   const observerRef = useRef<IntersectionObserver | null>(null);
@@ -144,7 +139,7 @@ export default function QuranReader({ title, subtitle, badge, verses, onBookmark
     }
   }, [verses, location.pathname]);
 
-  const playLabel = badge.toLowerCase().includes('hizb') ? 'Play Hizb' : 'Play Surah';
+  const playLabel = readerType === 'hizb' ? t('playHizb') : t('playSurah');
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-[#07111F] pb-64 lg:pb-32">
@@ -159,8 +154,8 @@ export default function QuranReader({ title, subtitle, badge, verses, onBookmark
               to="/quran"
               className="inline-flex items-center gap-2 rounded-2xl border border-white/10 bg-white/[0.04] px-3 py-2 text-sm font-semibold text-[#DCE5EF] transition hover:bg-white/[0.07] sm:px-4"
             >
-              <ChevronLeft className="size-4" />
-              Quran
+              <ChevronLeft className={`size-4 ${isRtl ? 'rotate-180' : ''}`} />
+              {t('navQuran')}
             </Link>
             <span className="rounded-full border border-[#D9B45A]/25 bg-[#D9B45A]/10 px-3 py-2 text-[10px] font-bold uppercase tracking-[0.16em] text-[#F2C66D] sm:px-4 sm:text-xs">
               {badge}
@@ -168,15 +163,15 @@ export default function QuranReader({ title, subtitle, badge, verses, onBookmark
           </div>
 
           <div className="mt-5 text-center">
-            <p className="text-xs font-bold uppercase tracking-[0.24em] text-[#D9B45A]">Canonical Uthmani text</p>
+            <p className="text-xs font-bold uppercase tracking-[0.24em] text-[#D9B45A]">{t('canonicalUthmaniText')}</p>
             <h1 className="mx-auto mt-2 max-w-3xl text-2xl font-bold leading-tight text-white sm:text-3xl lg:text-5xl">
               {title}
             </h1>
             <p className="mx-auto mt-3 max-w-2xl text-sm leading-6 text-[#B8C4D6]">{subtitle}</p>
             <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
-              <ReaderStat icon={Hash} label={`${audioVerses.length} ayahs`} />
-              <ReaderStat icon={Layers} label={`${surahCount} surah${surahCount > 1 ? 's' : ''}`} />
-              {firstVerse ? <ReaderStat icon={ScrollText} label={`Starts page ${firstVerse.page}`} /> : null}
+              <ReaderStat icon={Hash} label={`${audioVerses.length} ${t('ayahs')}`} />
+              <ReaderStat icon={Layers} label={`${surahCount} ${surahCount > 1 ? t('surahs') : t('surah')}`} />
+              {firstVerse ? <ReaderStat icon={ScrollText} label={t('startsPage', { page: firstVerse.page })} /> : null}
             </div>
 
             <div className="mt-5 flex flex-col items-stretch justify-center gap-3 sm:flex-row sm:items-center">
@@ -192,7 +187,7 @@ export default function QuranReader({ title, subtitle, badge, verses, onBookmark
                 type="button"
               >
                 {readerIsPlaying ? <Pause className="size-4 fill-current" /> : <Play className="size-4 fill-current" />}
-                {readerIsPlaying ? 'Pause audio' : playLabel}
+                {readerIsPlaying ? t('pauseAudio') : playLabel}
               </button>
 
               {lastPlayedVerse ? (
@@ -202,7 +197,7 @@ export default function QuranReader({ title, subtitle, badge, verses, onBookmark
                   type="button"
                 >
                   <RotateCcw className="size-4 text-[#10B981]" />
-                  Continue listening
+                  {t('continueListening')}
                 </button>
               ) : null}
 
@@ -212,7 +207,7 @@ export default function QuranReader({ title, subtitle, badge, verses, onBookmark
                   value={reciter.id}
                   onChange={(event) => setReciter(event.target.value)}
                   className="min-w-0 bg-transparent text-sm font-semibold text-white outline-none"
-                  aria-label="Audio reciter"
+                  aria-label={t('audioRecitation')}
                 >
                   {reciters.map((item) => (
                     <option key={item.id} value={item.id} className="bg-[#07111F] text-white">
@@ -224,11 +219,11 @@ export default function QuranReader({ title, subtitle, badge, verses, onBookmark
             </div>
 
             <p className="mt-3 text-xs leading-5 text-[#7D8DA3]">
-              Text is loaded from canonical Quran verse records. Audio recitation is provided separately.
+              {t('textAudioNote')}
             </p>
             {status === 'error' && errorMessage ? (
               <p className="mx-auto mt-3 max-w-xl rounded-2xl border border-[#F2C66D]/20 bg-[#D9B45A]/10 px-4 py-3 text-sm text-[#F4E7C5]">
-                {errorMessage}
+                {t('quranAudioUnavailable')}
               </p>
             ) : null}
           </div>
@@ -254,7 +249,7 @@ export default function QuranReader({ title, subtitle, badge, verses, onBookmark
               }
 
               const { verse } = item;
-              const renderedAyahText = renderAyahText(verse.aya_text);
+              const cleanAyahText = getCleanAyahText(verse.aya_text);
               const verseIndex = audioVerses.findIndex(
                 (audioVerse) => getVerseKey(audioVerse) === getVerseKey(verse)
               );
@@ -292,7 +287,7 @@ export default function QuranReader({ title, subtitle, badge, verses, onBookmark
                         <button
                           onClick={() => onBookmark(verse)}
                           className="grid size-9 place-items-center rounded-xl border border-white/10 bg-white/[0.04] text-[#B8C4D6] transition hover:border-[#D9B45A]/35 hover:bg-[#D9B45A]/10 hover:text-[#F2C66D] sm:size-11 sm:rounded-2xl"
-                          aria-label="Bookmark verse"
+                          aria-label={t('manualBookmark')}
                           type="button"
                         >
                           <Bookmark className="size-4" />
@@ -305,8 +300,8 @@ export default function QuranReader({ title, subtitle, badge, verses, onBookmark
                     className="quran-ayah-text font-quran-uthmani text-right text-white drop-shadow-[0_0_18px_rgba(242,198,109,0.05)]"
                     dir="rtl"
                   >
-                    {renderedAyahText}
-                    <span className="quran-ayah-marker" aria-label={`Ayah ${verse.aya_no}`}>
+                    {renderAyahText(cleanAyahText)}
+                    <span className="quran-ayah-marker" aria-label={`${t('ayah')} ${verse.aya_no}`}>
                       {toArabicIndicNumber(verse.aya_no)}
                     </span>
                   </p>
@@ -315,12 +310,12 @@ export default function QuranReader({ title, subtitle, badge, verses, onBookmark
                     <span className="flex flex-wrap items-center gap-2">
                       <span>{verse.sura_name_en}</span>
                       <span className="size-1 rounded-full bg-[#D9B45A]/55" aria-hidden="true" />
-                      <span>Page {verse.page}</span>
+                      <span>{t('page')} {verse.page}</span>
                       <span className="size-1 rounded-full bg-[#D9B45A]/55" aria-hidden="true" />
-                      <span>Juz {verse.jozz}</span>
+                      <span>{t('juz')} {verse.jozz}</span>
                     </span>
                     <span className="text-[#D9B45A]/75">
-                      Ayah {verseIndex + 1} of {audioVerses.length}
+                      {t('ayah')} {verseIndex + 1} / {audioVerses.length}
                     </span>
                   </div>
                 </section>

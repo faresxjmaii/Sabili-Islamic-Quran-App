@@ -20,7 +20,7 @@ import { usePrayerTimes } from '../hooks/usePrayerTimes';
 import { useNextPrayer } from '../hooks/useNextPrayer';
 import { formatTime12h } from '../utils';
 import LocationPermissionCard from '../components/LocationPermissionCard';
-import { useI18n } from '../i18n';
+import { useI18n, type TranslationKey } from '../i18n';
 import type { PrayerName } from '../types';
 
 type PrayerItem = {
@@ -58,12 +58,20 @@ const fallbackTimes: Record<string, string> = {
   Lastthird: '02:58',
 };
 
-function displayPrayerLabel(key: string, prayerName: (name: PrayerName) => string) {
+const extraPrayerLabelKeys: Record<string, TranslationKey> = {
+  Sunset: 'sunset',
+  Imsak: 'imsak',
+  Midnight: 'midnight',
+  Firstthird: 'firstThird',
+  Lastthird: 'lastThird',
+};
+
+function displayPrayerLabel(key: string, prayerName: (name: PrayerName) => string, t: (key: TranslationKey) => string) {
   if (['Fajr', 'Sunrise', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'].includes(key)) {
     return prayerName(key as PrayerName);
   }
 
-  return key.replace(/([a-z])([A-Z])/g, '$1 $2');
+  return extraPrayerLabelKeys[key] ? t(extraPrayerLabelKeys[key]) : key.replace(/([a-z])([A-Z])/g, '$1 $2');
 }
 
 function ActionButton({
@@ -302,7 +310,7 @@ export default function PrayerTimesPage() {
                   ) : null}
                 </div>
                 <div className="relative z-10 mt-7">
-                  <p className="text-sm font-semibold text-[#B8C4D6]">{displayPrayerLabel(key, prayerName)}</p>
+                  <p className="text-sm font-semibold text-[#B8C4D6]">{displayPrayerLabel(key, prayerName, t)}</p>
                   <p className="mt-2 text-3xl font-bold tabular-nums text-white">{formatTime12h(time)}</p>
                   {active ? (
                     <p className="mt-4 text-sm font-medium text-[#10B981]">{next?.timeLeft} {t('timeLeft')}</p>

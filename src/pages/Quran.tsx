@@ -18,7 +18,7 @@ const tabs: Array<{ id: QuranTab; labelKey: TranslationKey }> = [
 export default function QuranPage() {
   const [query, setQuery] = useState('');
   const [activeTab, setActiveTab] = useState<QuranTab>('all');
-  const { t } = useI18n();
+  const { t, isRtl } = useI18n();
   const { data, isLoading, isError, error } = useQuery({
     queryKey: ['chapters'],
     queryFn: () => fetchChapters('en'),
@@ -53,11 +53,17 @@ export default function QuranPage() {
   const bookmark = useMemo(() => bookmarkService.get(), []);
   const readingProgress = useMemo(() => readingProgressService.get(), []);
 
-  const lastReadTitle = readingProgress 
-    ? `${readingProgress.surahName || (readingProgress.readerType === 'hizb' ? `Hizb ${readingProgress.hizbNumber}` : 'Quran')} - Ayah ${readingProgress.ayahNumber}`
-    : bookmark 
-      ? `${bookmark.surahName} - Ayah ${bookmark.verseNumber}` 
-      : 'Al-Baqarah - Ayah 255';
+  const formatHizbTitle = (id: number) => t('hizbTitle', { id });
+  const formatHizbSubtitle = (id: number) => {
+    const juz = Math.ceil(id / 2);
+    return t(id % 2 === 1 ? 'firstHalfOfJuz' : 'secondHalfOfJuz', { juz });
+  };
+
+  const lastReadTitle = readingProgress
+    ? `${readingProgress.surahName || (readingProgress.readerType === 'hizb' ? formatHizbTitle(readingProgress.hizbNumber ?? 1) : t('quran'))} - ${t('ayah')} ${readingProgress.ayahNumber}`
+    : bookmark
+      ? `${bookmark.surahName} - ${t('ayah')} ${bookmark.verseNumber}`
+      : `Al-Baqarah - ${t('ayah')} 255`;
 
   if (isError) {
     return (
@@ -80,7 +86,7 @@ export default function QuranPage() {
               <p className="hidden text-xs font-semibold uppercase tracking-[0.22em] text-[#D9B45A] lg:block">{t('riwayatQaloun')}</p>
               <h1 className="text-2xl font-semibold text-white lg:mt-2 lg:text-4xl">{t('navQuran')}</h1>
             </div>
-            <button className="grid size-11 place-items-center rounded-2xl border border-white/10 bg-white/[0.04] text-[#B8C4D6] lg:size-12" type="button" aria-label="Quran settings">
+            <button className="grid size-11 place-items-center rounded-2xl border border-white/10 bg-white/[0.04] text-[#B8C4D6] lg:size-12" type="button" aria-label={t('quranSettings')}>
               <Settings className="size-5" />
             </button>
           </header>
@@ -95,7 +101,7 @@ export default function QuranPage() {
                 placeholder={activeTab === 'hizb' ? t('searchHizb') : t('searchSurah')}
               />
             </label>
-            <button className="grid size-12 place-items-center rounded-2xl border border-white/10 bg-[#0F2438]/90 text-[#B8C4D6] lg:size-14" type="button" aria-label="Filter Quran">
+            <button className="grid size-12 place-items-center rounded-2xl border border-white/10 bg-[#0F2438]/90 text-[#B8C4D6] lg:size-14" type="button" aria-label={t('filterQuran')}>
               <SlidersHorizontal className="size-5" />
             </button>
           </div>
@@ -109,11 +115,11 @@ export default function QuranPage() {
                 <BookOpen className="size-9 lg:size-11" />
               </span>
               <span className="min-w-0 flex-1">
-                <span className="block text-xs font-semibold uppercase tracking-[0.16em] text-[#D9B45A]">Continue Reading</span>
+                <span className="block text-xs font-semibold uppercase tracking-[0.16em] text-[#D9B45A]">{t('continueReading')}</span>
                 <span className="mt-1 block text-sm font-semibold text-white lg:text-base">{lastReadTitle}</span>
-                <span className="mt-1 block text-xs text-[#B8C4D6]">Resuming from your last session</span>
+                <span className="mt-1 block text-xs text-[#B8C4D6]">{t('resumingLastSession')}</span>
               </span>
-              <ChevronRight className="size-5 shrink-0 text-[#D9B45A]" />
+              <ChevronRight className={`size-5 shrink-0 text-[#D9B45A] ${isRtl ? 'rotate-180' : ''}`} />
             </Link>
           ) : bookmark ? (
             <Link
@@ -126,7 +132,7 @@ export default function QuranPage() {
               <span className="min-w-0 flex-1">
                 <span className="block text-xs font-semibold uppercase tracking-[0.16em] text-[#D9B45A]">{t('lastRead')}</span>
                 <span className="mt-1 block text-sm font-semibold text-white lg:text-base">{lastReadTitle}</span>
-                <span className="mt-1 block text-xs text-[#B8C4D6]">Manual bookmark</span>
+                <span className="mt-1 block text-xs text-[#B8C4D6]">{t('manualBookmark')}</span>
               </span>
               <Bookmark className="size-5 shrink-0 fill-[#F2C66D] text-[#F2C66D]" />
             </Link>
@@ -157,10 +163,10 @@ export default function QuranPage() {
                   <span className="text-xs font-bold uppercase tracking-[0.18em] text-[#D9B45A]">{t('hizb')}</span>
                   <div className="mt-2 flex items-center justify-between gap-4">
                     <div>
-                      <p className="text-lg font-bold text-white">{hizb.title}</p>
-                      <p className="mt-1 text-xs text-[#B8C4D6]">{hizb.subtitle}</p>
+                      <p className="text-lg font-bold text-white">{formatHizbTitle(hizb.id)}</p>
+                      <p className="mt-1 text-xs text-[#B8C4D6]">{formatHizbSubtitle(hizb.id)}</p>
                     </div>
-                    <ChevronRight className="size-4 text-[#7D8DA3] transition group-hover:translate-x-1" />
+                    <ChevronRight className={`size-4 text-[#7D8DA3] transition group-hover:translate-x-1 ${isRtl ? 'rotate-180 group-hover:-translate-x-1' : ''}`} />
                   </div>
                 </Link>
               ))}
@@ -192,11 +198,11 @@ export default function QuranPage() {
                           {surah.name_simple}
                         </span>
                         <span className="mt-0.5 block text-xs font-medium text-[#7D8DA3]">
-                          {surah.verses_count} Ayahs - {surah.revelation_place === 'makkah' ? t('meccan') : t('medinan')}
+                          {surah.verses_count} {t('ayahs')} - {surah.revelation_place === 'makkah' ? t('meccan') : t('medinan')}
                         </span>
                       </span>
                       <span className="font-arabic text-xl text-[#DCE5EF] lg:text-2xl" dir="rtl">{surah.name_arabic}</span>
-                      <ChevronRight className="hidden size-4 text-[#7D8DA3] transition group-hover:translate-x-1 lg:block" />
+                      <ChevronRight className={`hidden size-4 text-[#7D8DA3] transition group-hover:translate-x-1 lg:block ${isRtl ? 'rotate-180 group-hover:-translate-x-1' : ''}`} />
                     </Link>
                   ))}
             </div>
