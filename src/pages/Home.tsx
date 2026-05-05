@@ -124,6 +124,9 @@ function CompactHeroCard({
     timeRemaining: string;
   };
 }) {
+  const { isRtl } = useI18n();
+  // Arabic label class: removes letter-spacing, uppercase & uses Alexandria
+  const arLabelCls = isRtl ? 'label-ui-ar no-arabic-uppercase text-[13px]' : 'font-[\'Inter\',sans-serif] text-[11px] font-bold uppercase tracking-[0.2em]';
   return (
     <section className="relative overflow-hidden rounded-[24px] lg:rounded-[32px] border border-[#E9DFC9]/10 bg-[linear-gradient(135deg,#0F2438_0%,#07111F_100%)] p-6 sm:p-8 lg:p-10 shadow-[0_20px_50px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.05)]">
       <div className="absolute top-0 right-0 w-72 h-72 bg-[#00A878]/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3" />
@@ -133,11 +136,11 @@ function CompactHeroCard({
       <div className="relative z-10 flex flex-col gap-6 lg:gap-8">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-white/10 pb-5 gap-4 sm:gap-0">
           <div className="flex items-center gap-3">
-            <span className="font-['Inter',sans-serif] text-[11px] font-bold uppercase tracking-[0.2em] text-[#D9B45A]">{labels.hijriDate}</span>
-            <span className="font-['Inter',sans-serif] text-sm font-medium text-[#F8FAFC]">{hijriDate}</span>
+            <span className={`${arLabelCls} text-[#D9B45A]`}>{labels.hijriDate}</span>
+            <span className="font-['Outfit',sans-serif] text-sm font-medium text-[#F8FAFC] tabular-nums">{hijriDate}</span>
           </div>
           <div className="flex items-center gap-3">
-            <span className="font-['Inter',sans-serif] text-[11px] font-bold uppercase tracking-[0.2em] text-[#D9B45A]">{labels.sunrise}</span>
+            <span className={`${arLabelCls} text-[#D9B45A]`}>{labels.sunrise}</span>
             <div className="flex items-center gap-2 text-[#F8FAFC]">
               <SunMedium className="size-4 text-[#D9B45A]" />
               <span className="font-['Outfit',sans-serif] text-sm font-medium tabular-nums">{sunriseTime ?? '--:--'}</span>
@@ -146,7 +149,7 @@ function CompactHeroCard({
         </div>
 
         <div className="flex flex-col items-center text-center py-5 sm:py-8 lg:py-10">
-          <p className="font-['Inter',sans-serif] text-[11px] sm:text-xs font-bold uppercase tracking-[0.25em] text-[#00A878] mb-5">
+          <p className={`${isRtl ? 'label-ui-ar no-arabic-uppercase text-[13px]' : 'font-[\'Inter\',sans-serif] text-[11px] sm:text-xs font-bold uppercase tracking-[0.25em]'} text-[#00A878] mb-5`}>
             {labels.nextPrayer}
           </p>
           
@@ -161,7 +164,7 @@ function CompactHeroCard({
 
           <div className="inline-flex items-center gap-3.5 rounded-full border border-white/5 bg-white/[0.02] px-6 py-3 backdrop-blur-md shadow-sm transition hover:bg-white/[0.04]">
             <Clock3 className="size-4 text-[#D9B45A]" />
-            <span className="font-['Inter',sans-serif] text-[11px] font-bold uppercase tracking-[0.2em] text-[#B8C4D6]">{labels.timeRemaining}</span>
+            <span className={`${arLabelCls} text-[#B8C4D6]`}>{labels.timeRemaining}</span>
             <span className="font-['Outfit',sans-serif] text-base sm:text-lg font-medium text-white tabular-nums tracking-wide">{countdown}</span>
           </div>
         </div>

@@ -163,7 +163,7 @@ export default function QuranReader({ title, subtitle, badge, verses, onBookmark
           </div>
 
           <div className="mt-5 text-center">
-            <p className="text-xs font-bold uppercase tracking-[0.24em] text-[#D9B45A]">{t('canonicalUthmaniText')}</p>
+            <p className={`${isRtl ? 'label-ui-ar no-arabic-uppercase text-[13px]' : 'text-xs font-bold uppercase tracking-[0.24em]'} text-[#D9B45A]`}>{t('canonicalUthmaniText')}</p>
             <h1 className="mx-auto mt-2 max-w-3xl text-2xl font-bold leading-tight text-white sm:text-3xl lg:text-5xl">
               {title}
             </h1>

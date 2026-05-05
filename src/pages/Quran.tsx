@@ -83,7 +83,7 @@ export default function QuranPage() {
         <section className="mx-auto w-full max-w-[620px] lg:max-w-none">
           <header className="mb-5 flex items-center justify-between lg:mb-6">
             <div>
-              <p className="hidden text-xs font-semibold uppercase tracking-[0.22em] text-[#D9B45A] lg:block">{t('riwayatQaloun')}</p>
+              <p className={`hidden ${isRtl ? 'label-ui-ar no-arabic-uppercase text-[13px]' : 'text-xs font-semibold uppercase tracking-[0.22em]'} text-[#D9B45A] lg:block`}>{t('riwayatQaloun')}</p>
               <h1 className="text-2xl font-semibold text-white lg:mt-2 lg:text-4xl">{t('navQuran')}</h1>
             </div>
             <button className="grid size-11 place-items-center rounded-2xl border border-white/10 bg-white/[0.04] text-[#B8C4D6] lg:size-12" type="button" aria-label={t('quranSettings')}>
@@ -115,7 +115,7 @@ export default function QuranPage() {
                 <BookOpen className="size-9 lg:size-11" />
               </span>
               <span className="min-w-0 flex-1">
-                <span className="block text-xs font-semibold uppercase tracking-[0.16em] text-[#D9B45A]">{t('continueReading')}</span>
+                <span className={`block ${isRtl ? 'label-ui-ar no-arabic-uppercase text-[13px]' : 'text-xs font-semibold uppercase tracking-[0.16em]'} text-[#D9B45A]`}>{t('continueReading')}</span>
                 <span className="mt-1 block text-sm font-semibold text-white lg:text-base">{lastReadTitle}</span>
                 <span className="mt-1 block text-xs text-[#B8C4D6]">{t('resumingLastSession')}</span>
               </span>
@@ -130,7 +130,7 @@ export default function QuranPage() {
                 <Bookmark className="size-9 lg:size-11" />
               </span>
               <span className="min-w-0 flex-1">
-                <span className="block text-xs font-semibold uppercase tracking-[0.16em] text-[#D9B45A]">{t('lastRead')}</span>
+                <span className={`block ${isRtl ? 'label-ui-ar no-arabic-uppercase text-[13px]' : 'text-xs font-semibold uppercase tracking-[0.16em]'} text-[#D9B45A]`}>{t('lastRead')}</span>
                 <span className="mt-1 block text-sm font-semibold text-white lg:text-base">{lastReadTitle}</span>
                 <span className="mt-1 block text-xs text-[#B8C4D6]">{t('manualBookmark')}</span>
               </span>
@@ -160,7 +160,7 @@ export default function QuranPage() {
                   to={`/quran/hizb/${hizb.id}`}
                   className="group rounded-[22px] border border-white/10 bg-[#0F2438]/74 p-4 shadow-[0_16px_40px_rgba(0,0,0,0.18)] transition hover:-translate-y-1 hover:border-[#D9B45A]/28 hover:bg-white/[0.045]"
                 >
-                  <span className="text-xs font-bold uppercase tracking-[0.18em] text-[#D9B45A]">{t('hizb')}</span>
+                  <span className={`${isRtl ? 'label-ui-ar no-arabic-uppercase text-[13px]' : 'text-xs font-bold uppercase tracking-[0.18em]'} text-[#D9B45A]`}>{t('hizb')}</span>
                   <div className="mt-2 flex items-center justify-between gap-4">
                     <div>
                       <p className="text-lg font-bold text-white">{formatHizbTitle(hizb.id)}</p>
@@ -213,7 +213,7 @@ export default function QuranPage() {
           <div className="sticky top-8 rounded-[28px] border border-white/10 bg-[#0F2438]/76 p-7 shadow-[0_24px_70px_rgba(0,0,0,0.24)] backdrop-blur-2xl">
             <div className="mb-7 flex items-center justify-between">
               <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#D9B45A]">{t('defaultReading')}</p>
+                <p className={`${isRtl ? 'label-ui-ar no-arabic-uppercase text-[13px]' : 'text-xs font-semibold uppercase tracking-[0.2em]'} text-[#D9B45A]`}>{t('defaultReading')}</p>
                 <h2 className="mt-2 text-2xl font-semibold text-white">{t('riwayatQaloun')}</h2>
                 <p className="mt-1 text-sm text-[#B8C4D6]">{t('qalounDesc')}</p>
               </div>

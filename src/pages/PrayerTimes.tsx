@@ -161,7 +161,7 @@ export default function PrayerTimesPage() {
     locationAccessError,
   } = usePrayerTimes();
   const next = useNextPrayer(data?.data?.timings);
-  const { t, prayerName } = useI18n();
+  const { t, prayerName, isRtl } = useI18n();
   const [toast, setToast] = useState('');
   const timings = data?.data?.timings;
   const locationLabel = data?.resolvedLocation?.displayName ?? t('allowLocation');
@@ -230,7 +230,7 @@ export default function PrayerTimesPage() {
       >
         <div className="mb-7 flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
           <div>
-            <p className="mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.22em] text-[#D9B45A]">
+            <p className={`mb-2 flex items-center gap-2 ${isRtl ? 'label-ui-ar no-arabic-uppercase text-[13px]' : 'text-xs font-semibold uppercase tracking-[0.22em]'} text-[#D9B45A]`}>
               <Sparkles className="size-4" />
               {t('dailySalat')}
             </p>

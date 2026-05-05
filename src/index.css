@@ -69,6 +69,21 @@
   :lang(ar) textarea {
     font-family: var(--font-arabic);
   }
+
+  /*
+   * Global Arabic typography safety net:
+   * Any element that carries Arabic text must not inherit
+   * letter-spacing or uppercase transforms from English label styles.
+   * This targets the html[lang="ar"] root that gets set by the app.
+   */
+  html[lang="ar"] * {
+    letter-spacing: 0 !important;
+    word-spacing: normal !important;
+  }
+
+  html[lang="ar"] .no-arabic-uppercase {
+    text-transform: none !important;
+  }
 }
 
 /* ── Utilities ────────────────────────────────────────────── */
@@ -82,6 +97,21 @@
   .font-ui-ar {
     font-family: var(--font-arabic);
     line-height: 1.75;
+  }
+
+  /**
+   * Arabic UI label — use this for small caps/uppercase labels when in Arabic mode.
+   * Resets all English spaced-caps typography that breaks Arabic ligatures.
+   */
+  .label-ui-ar {
+    font-family: "Alexandria", "Noto Sans Arabic", "Tahoma", sans-serif;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0;
+    word-spacing: normal;
+    text-transform: none;
+    font-kerning: normal;
+    unicode-bidi: isolate;
   }
 
   .bidi-isolate {

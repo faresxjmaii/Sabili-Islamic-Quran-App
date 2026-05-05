@@ -55,7 +55,7 @@ async function searchCity(query: string): Promise<QiblaLocation> {
 }
 
 export default function QiblaPage() {
-  const { t } = useI18n();
+  const { t, isRtl } = useI18n();
   const [location, setLocation] = useState<QiblaLocation | null>(null);
   const [heading, setHeading] = useState<number | null>(null);
   const [city, setCity] = useState('');
@@ -141,7 +141,7 @@ export default function QiblaPage() {
 
       <section className="relative z-10 mx-auto max-w-[1180px] px-4 py-6 sm:px-6 lg:px-8 lg:py-12 2xl:px-0">
         <div className="mb-8 text-center">
-          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[#D9B45A]">{t('directionToMakkah')}</p>
+          <p className={`${isRtl ? 'label-ui-ar no-arabic-uppercase text-[13px]' : 'text-xs font-semibold uppercase tracking-[0.24em]'} text-[#D9B45A]`}>{t('directionToMakkah')}</p>
           <h1 className="mt-3 text-4xl font-bold text-white lg:text-5xl">{t('qiblaCompass')}</h1>
           <p className="mx-auto mt-4 max-w-2xl text-sm leading-6 text-[#B8C4D6]">
             {t('qiblaDescription')}
@@ -231,7 +231,7 @@ export default function QiblaPage() {
             </div>
 
             <div className="relative mt-8 text-center">
-              <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[#D9B45A]">{t('qiblaBearing')}</p>
+              <p className={`${isRtl ? 'label-ui-ar no-arabic-uppercase text-[13px]' : 'text-sm font-semibold uppercase tracking-[0.2em]'} text-[#D9B45A]`}>{t('qiblaBearing')}</p>
               <p className="mt-2 text-4xl font-bold tabular-nums text-white">
                 {bearing === null ? '--' : `${Math.round(bearing)}°`}
               </p>
