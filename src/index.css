@@ -1,0 +1,193 @@
+@import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@700&family=Sora:wght@800&display=swap");
+@import "tailwindcss";
+
+@font-face {
+  font-family: "qaloon10";
+  src: url("https://cdn.jsdelivr.net/gh/thetruetruth/quran-data-kfgqpc@main/qaloon/font/qaloon.10.woff2") format("woff2"),
+    url("https://cdn.jsdelivr.net/gh/thetruetruth/quran-data-kfgqpc@main/qaloon/font/qaloon.10.ttf") format("truetype");
+  font-display: swap;
+}
+
+@theme {
+  /* === Brand Palette === */
+  --color-navy-950: #07111F;
+  --color-navy-900: #081A2E;
+  --color-navy-800: #0B1F33;
+  --color-navy-700: #0F2438;
+  --color-navy-600: #162E47;
+
+  --color-emerald-500: #00A878;
+  --color-emerald-400: #10B981;
+  --color-emerald-300: #34D399;
+  --color-emerald-900: #022C22;
+
+  --color-gold-400: #F2C66D;
+  --color-gold-500: #D9B45A;
+  --color-gold-600: #B8912E;
+
+  /* === Semantic === */
+  --color-bg: #07111F;
+  --color-surface: #0F2438;
+  --color-surface-muted: rgba(255,255,255,0.06);
+  --color-border: rgba(255,255,255,0.10);
+  --color-text-primary: #F8FAFC;
+  --color-text-secondary: #B8C4D6;
+  --color-text-muted: #6B7F96;
+
+  /* === Typography === */
+  --font-sans: "Inter", system-ui, sans-serif;
+  --font-arabic: "Amiri", "Noto Naskh Arabic", serif;
+}
+
+/* ── Base Reset ───────────────────────────────────────────── */
+@layer base {
+  *, *::before, *::after { box-sizing: border-box; }
+
+  html {
+    font-family: var(--font-sans);
+    background-color: var(--color-bg);
+    color: var(--color-text-primary);
+    -webkit-tap-highlight-color: transparent;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply m-0 p-0 antialiased min-h-screen;
+    background-color: var(--color-bg);
+  }
+}
+
+/* ── Utilities ────────────────────────────────────────────── */
+@layer utilities {
+  /* Arabic text */
+  .font-arabic {
+    font-family: var(--font-arabic);
+    line-height: 2.0;
+  }
+
+  .font-qaloun {
+    font-family: "qaloon10", "Amiri Quran", "Amiri", "Noto Naskh Arabic", serif;
+    line-height: 2.45;
+  }
+
+  /* Glass card */
+  .card {
+    background: rgba(15, 36, 56, 0.85);
+    border: 1px solid rgba(255, 255, 255, 0.10);
+    border-radius: 20px;
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+  }
+
+  /* Frosted stronger card */
+  .card-glass {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 20px;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+  }
+
+  /* Emerald hero card */
+  .card-hero {
+    background: linear-gradient(135deg, #00A878 0%, #047857 60%, #065F46 100%);
+    border: 1px solid rgba(0,168,120,0.4);
+    border-radius: 24px;
+    box-shadow: 0 20px 60px rgba(0,168,120,0.25), 0 4px 20px rgba(0,0,0,0.4);
+  }
+
+  /* Glow effect */
+  .glow-emerald {
+    box-shadow: 0 0 40px rgba(0,168,120,0.20);
+  }
+  .glow-gold {
+    box-shadow: 0 0 30px rgba(242,198,109,0.15);
+  }
+
+  /* Islamic geometric pattern */
+  .bg-pattern {
+    background-image: url("data:image/svg+xml,%3Csvg width='92' height='92' viewBox='0 0 92 92' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke='%23D9B45A' stroke-opacity='0.20' stroke-width='0.75'%3E%3Cpath d='M46 2 L90 46 L46 90 L2 46Z'/%3E%3Cpath d='M46 14 L78 46 L46 78 L14 46Z'/%3E%3Cpath d='M46 26 L66 46 L46 66 L26 46Z'/%3E%3C/g%3E%3Cg fill='none' stroke='%2310B981' stroke-opacity='0.12' stroke-width='0.65'%3E%3Cpath d='M0 46 H92 M46 0 V92'/%3E%3Cpath d='M18 18 L74 74 M74 18 L18 74'/%3E%3C/g%3E%3C/svg%3E");
+  }
+
+  .app-atmosphere {
+    background-image:
+      radial-gradient(circle at 12% 14%, rgba(16, 185, 129, 0.10), transparent 30%),
+      radial-gradient(circle at 86% 18%, rgba(217, 180, 90, 0.08), transparent 28%),
+      url("data:image/svg+xml,%3Csvg width='92' height='92' viewBox='0 0 92 92' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke='%23D9B45A' stroke-opacity='0.20' stroke-width='0.75'%3E%3Cpath d='M46 2 L90 46 L46 90 L2 46Z'/%3E%3Cpath d='M46 14 L78 46 L46 78 L14 46Z'/%3E%3Cpath d='M46 26 L66 46 L46 66 L26 46Z'/%3E%3C/g%3E%3Cg fill='none' stroke='%2310B981' stroke-opacity='0.12' stroke-width='0.65'%3E%3Cpath d='M0 46 H92 M46 0 V92'/%3E%3Cpath d='M18 18 L74 74 M74 18 L18 74'/%3E%3C/g%3E%3C/svg%3E");
+    opacity: 0.18;
+  }
+
+  /* Crescent glow backdrop */
+  .hero-glow {
+    position: relative;
+    overflow: hidden;
+  }
+  .hero-glow::before {
+    content: '';
+    position: absolute;
+    top: -40%;
+    right: -20%;
+    width: 70%;
+    height: 150%;
+    background: radial-gradient(ellipse, rgba(0,168,120,0.18) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .hero-glow::after {
+    content: '';
+    position: absolute;
+    bottom: -30%;
+    left: -10%;
+    width: 50%;
+    height: 100%;
+    background: radial-gradient(ellipse, rgba(242,198,109,0.08) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  /* Active nav pill */
+  .nav-active {
+    color: #00A878;
+    background: rgba(0,168,120,0.12);
+    border-radius: 10px;
+  }
+
+  /* Button primary */
+  .btn-primary {
+    background: linear-gradient(135deg, #00A878, #047857);
+    color: #fff;
+    border-radius: 12px;
+    padding: 10px 22px;
+    font-weight: 600;
+    font-size: 14px;
+    transition: all 0.2s ease;
+    border: none;
+    cursor: pointer;
+  }
+  .btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 8px 24px rgba(0,168,120,0.35);
+  }
+
+  /* Button ghost */
+  .btn-ghost {
+    background: rgba(255,255,255,0.07);
+    color: #B8C4D6;
+    border-radius: 12px;
+    padding: 10px 22px;
+    font-weight: 500;
+    font-size: 14px;
+    transition: all 0.2s ease;
+    border: 1px solid rgba(255,255,255,0.10);
+    cursor: pointer;
+  }
+  .btn-ghost:hover {
+    background: rgba(255,255,255,0.11);
+    color: #F8FAFC;
+  }
+
+  /* Highlighted prayer row */
+  .prayer-active {
+    background: rgba(0,168,120,0.14);
+    border: 1px solid rgba(0,168,120,0.30);
+    border-radius: 12px;
+  }
+}
