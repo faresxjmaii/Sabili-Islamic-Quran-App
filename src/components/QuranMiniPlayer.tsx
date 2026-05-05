@@ -1,12 +1,27 @@
 import { AlertCircle, ChevronLeft, ChevronRight, Pause, Play, X } from 'lucide-react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useQuranAudio } from '../app/useQuranAudio';
 import { useI18n } from '../i18n';
+import { scrollToVerse } from '../utils/scrollToVerse';
+
+function parseVerseKey(verseKey: string | null) {
+  const match = verseKey?.match(/^(\d+):(\d+)$/);
+  if (!match) return null;
+
+  return {
+    surahId: Number(match[1]),
+    verseKey: match[0],
+  };
+}
 
 export default function QuranMiniPlayer() {
   const { t, isRtl } = useI18n();
+  const navigate = useNavigate();
+  const location = useLocation();
   const {
     status,
     currentVerse,
+    currentVerseKey,
     currentIndex,
     queueLength,
     reciter,
@@ -24,11 +39,34 @@ export default function QuranMiniPlayer() {
   const playerStatus = status === 'error'
     ? errorMessage || t('quranAudioUnavailable')
     : `${reciter.name}${queueLength > 1 ? ` - ${currentIndex + 1}/${queueLength}` : ''}`;
+  const activeVerseTarget = parseVerseKey(currentVerseKey);
+
+  const navigateToCurrentAyah = () => {
+    if (!activeVerseTarget) return;
+
+    const surahPath = `/quran/${activeVerseTarget.surahId}`;
+    if (location.pathname === surahPath) {
+      scrollToVerse(activeVerseTarget.verseKey);
+      return;
+    }
+
+    navigate(surahPath, {
+      state: {
+        targetVerseKey: activeVerseTarget.verseKey,
+        focusNonce: Date.now(),
+      },
+    });
+  };
 
   return (
     <div className="fixed inset-x-0 bottom-[calc(6.35rem+env(safe-area-inset-bottom))] z-[60] px-3 lg:bottom-5 lg:px-6">
       <div className="mx-auto flex max-w-3xl items-center gap-3 rounded-[24px] border border-white/10 bg-[#07111F]/92 px-3 py-3 shadow-[0_-18px_70px_rgba(0,0,0,0.45),0_0_40px_rgba(16,185,129,0.10)] backdrop-blur-2xl sm:px-4">
-        <div className="min-w-0 flex-1">
+        <button
+          onClick={navigateToCurrentAyah}
+          className="min-w-0 flex-1 rounded-2xl px-1 py-1 text-start transition hover:bg-white/[0.035] focus:outline-none focus:ring-2 focus:ring-[#D9B45A]/45"
+          type="button"
+          aria-label={`${currentVerse.sura_name_en} - ${t('ayah')} ${currentVerse.aya_no}`}
+        >
           <div className="flex items-center gap-2">
             <span className="rounded-full border border-[#D9B45A]/25 bg-[#D9B45A]/10 px-2 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-[#F2C66D]">
               {t('audioRecitation')}
@@ -39,7 +77,7 @@ export default function QuranMiniPlayer() {
             <span className="bidi-isolate">{currentVerse.sura_name_en}</span> - {t('ayah')} {currentVerse.aya_no}
           </p>
           <p className="truncate text-xs text-[#B8C4D6]">{playerStatus}</p>
-        </div>
+        </button>
 
         <div className="flex items-center gap-1.5">
           <button

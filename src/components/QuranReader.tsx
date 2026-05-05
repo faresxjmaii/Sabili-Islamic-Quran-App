@@ -8,6 +8,7 @@ import { getVerseKey } from '../services/quranAudioService';
 import type { QalounAyah } from '../services/quranService';
 import { readingProgressService, type ReaderType } from '../services/readingProgressService';
 import { useI18n } from '../i18n';
+import { scrollToVerse } from '../utils/scrollToVerse';
 
 type QuranReaderProps = {
   title: string;
@@ -24,6 +25,11 @@ function toArabicIndicNumber(value: number): string {
 }
 
 const RUB_EL_HIZB = '\u06DE';
+
+type QuranReaderLocationState = {
+  targetVerseKey?: string;
+  focusNonce?: number;
+};
 
 function getCleanAyahText(text: string): string {
   return text
@@ -58,6 +64,7 @@ export default function QuranReader({ title, subtitle, badge, verses, onBookmark
   const { t, isRtl } = useI18n();
   const { audioVerses, displayItems } = useMemo(() => getQuranDisplayItems(verses), [verses]);
   const location = useLocation();
+  const locationState = location.state as QuranReaderLocationState | null;
   const observerRef = useRef<IntersectionObserver | null>(null);
   const scrolledRef = useRef(false);
 
@@ -118,26 +125,27 @@ export default function QuranReader({ title, subtitle, badge, verses, onBookmark
     return () => observer.disconnect();
   }, [readerType, readerId, location.pathname]);
 
+  useEffect(() => {
+    if (!locationState?.targetVerseKey || verses.length === 0) return;
+
+    scrollToVerse(locationState.targetVerseKey);
+    scrolledRef.current = true;
+  }, [locationState?.focusNonce, locationState?.targetVerseKey, verses.length]);
+
   // Scroll to saved progress on mount
   useEffect(() => {
-    if (scrolledRef.current || verses.length === 0) return;
+    if (scrolledRef.current || locationState?.targetVerseKey || verses.length === 0) return;
 
     const saved = readingProgressService.get();
     if (saved && saved.route === location.pathname) {
       setTimeout(() => {
-        const element = document.querySelector(`[data-verse-key="${saved.verseKey}"]`);
-        if (element) {
-          element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          // Softly highlight the ayah
-          element.classList.add('animate-pulse-gold');
-          setTimeout(() => element.classList.remove('animate-pulse-gold'), 3000);
-        }
+        scrollToVerse(saved.verseKey, 1);
         scrolledRef.current = true;
       }, 500);
     } else {
       scrolledRef.current = true;
     }
-  }, [verses, location.pathname]);
+  }, [location.pathname, locationState?.targetVerseKey, verses.length]);
 
   const playLabel = readerType === 'hizb' ? t('playHizb') : t('playSurah');
 
@@ -257,6 +265,7 @@ export default function QuranReader({ title, subtitle, badge, verses, onBookmark
                   data-verse-key={verse.verse_key}
                   data-ayah-no={verse.aya_no}
                   data-surah-name={verse.sura_name_en}
+                  tabIndex={-1}
                   ref={(el) => {
                     if (el && observerRef.current) {
                       observerRef.current.observe(el);
