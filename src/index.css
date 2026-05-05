@@ -117,6 +117,18 @@
     white-space: nowrap;
   }
 
+  .quran-rub-el-hizb {
+    display: inline;
+    margin-inline: 0.18em;
+    color: #F4E7C5;
+    font-family: "UthmanicHafs", "Amiri Quran", "Traditional Arabic", serif;
+    font-size: 0.82em;
+    line-height: 1;
+    vertical-align: baseline;
+    white-space: nowrap;
+    text-shadow: 0 0 14px rgba(242, 198, 109, 0.16);
+  }
+
   /* Mobile-optimized Quranic text with better spacing */
   @media (max-width: 640px) {
     .font-qaloun {
@@ -141,6 +153,11 @@
     .quran-ayah-marker {
       margin-inline-start: 0.28em;
       font-size: 0.68em;
+    }
+
+    .quran-rub-el-hizb {
+      margin-inline: 0.14em;
+      font-size: 0.8em;
     }
   }
 

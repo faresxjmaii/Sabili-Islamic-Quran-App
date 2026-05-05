@@ -22,11 +22,33 @@ function toArabicIndicNumber(value: number): string {
   return String(value).replace(/\d/g, (digit) => String.fromCharCode(0x0660 + Number(digit)));
 }
 
+const RUB_EL_HIZB = '\u06DE';
+
 function getCleanAyahText(text: string): string {
-  return text
-    .replace(/[\u06D6-\u06ED]/g, '')
+  return Array.from(text)
+    .filter((char) => {
+      const codePoint = char.codePointAt(0) ?? 0;
+      const isQuranAnnotation = codePoint >= 0x06d6 && codePoint <= 0x06ed;
+      return !isQuranAnnotation || char === RUB_EL_HIZB;
+    })
+    .join('')
     .replace(/\s+/g, ' ')
     .trim();
+}
+
+function renderAyahText(text: string) {
+  return getCleanAyahText(text)
+    .split(RUB_EL_HIZB)
+    .flatMap((part, index) =>
+      index === 0
+        ? [part]
+        : [
+            <span key={`rub-el-hizb-${index}`} className="quran-rub-el-hizb" aria-label="Rub el Hizb">
+              {RUB_EL_HIZB}
+            </span>,
+            part,
+          ]
+    );
 }
 
 function ReaderStat({ icon: Icon, label }: { icon: typeof Hash; label: string }) {
@@ -232,7 +254,7 @@ export default function QuranReader({ title, subtitle, badge, verses, onBookmark
               }
 
               const { verse } = item;
-              const cleanAyahText = getCleanAyahText(verse.aya_text);
+              const renderedAyahText = renderAyahText(verse.aya_text);
               const verseIndex = audioVerses.findIndex(
                 (audioVerse) => getVerseKey(audioVerse) === getVerseKey(verse)
               );
@@ -283,7 +305,7 @@ export default function QuranReader({ title, subtitle, badge, verses, onBookmark
                     className="quran-ayah-text font-quran-uthmani text-right text-white drop-shadow-[0_0_18px_rgba(242,198,109,0.05)]"
                     dir="rtl"
                   >
-                    {cleanAyahText}
+                    {renderedAyahText}
                     <span className="quran-ayah-marker" aria-label={`Ayah ${verse.aya_no}`}>
                       {toArabicIndicNumber(verse.aya_no)}
                     </span>
