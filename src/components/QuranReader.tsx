@@ -22,6 +22,13 @@ function toArabicIndicNumber(value: number): string {
   return String(value).replace(/\d/g, (digit) => String.fromCharCode(0x0660 + Number(digit)));
 }
 
+function getCleanAyahText(text: string): string {
+  return text
+    .replace(/[\u06D6-\u06DD]/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
 function ReaderStat({ icon: Icon, label }: { icon: typeof Hash; label: string }) {
   return (
     <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.045] px-3 py-1.5 text-xs font-semibold text-[#B8C4D6]">
@@ -225,6 +232,7 @@ export default function QuranReader({ title, subtitle, badge, verses, onBookmark
               }
 
               const { verse } = item;
+              const cleanAyahText = getCleanAyahText(verse.aya_text);
               const verseIndex = audioVerses.findIndex(
                 (audioVerse) => getVerseKey(audioVerse) === getVerseKey(verse)
               );
@@ -275,7 +283,7 @@ export default function QuranReader({ title, subtitle, badge, verses, onBookmark
                     className="quran-ayah-text font-quran-uthmani text-right text-white drop-shadow-[0_0_18px_rgba(242,198,109,0.05)]"
                     dir="rtl"
                   >
-                    {verse.aya_text}
+                    {cleanAyahText}
                     <span className="quran-ayah-marker" aria-label={`Ayah ${verse.aya_no}`}>
                       {toArabicIndicNumber(verse.aya_no)}
                     </span>
