@@ -84,8 +84,10 @@ export interface UserLocation {
   type: 'auto' | 'manual';
   city?: string;
   country?: string;
+  displayName?: string;
   latitude?: number;
   longitude?: number;
+  accuracy?: number;
 }
 
 export interface AppSettings {

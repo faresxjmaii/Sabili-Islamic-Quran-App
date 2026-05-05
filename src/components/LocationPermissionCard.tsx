@@ -6,12 +6,14 @@ type LocationPermissionCardProps = {
   onEnable: () => void;
   onUseManual: (city: string, country: string) => void;
   errorMessage?: string;
+  isLocating?: boolean;
 };
 
 export default function LocationPermissionCard({
   onEnable,
   onUseManual,
   errorMessage,
+  isLocating = false,
 }: LocationPermissionCardProps) {
   const { t } = useI18n();
   const [city, setCity] = useState('');
@@ -45,12 +47,13 @@ export default function LocationPermissionCard({
         <div className="mt-6 flex flex-col items-center justify-center gap-3 sm:flex-row">
           <button
             onClick={onEnable}
-            className="group relative inline-flex w-full items-center justify-center gap-2 overflow-hidden rounded-2xl border border-[#F2C66D]/40 bg-[linear-gradient(135deg,#F2C66D,#D9B45A)] px-5 py-3 text-sm font-bold text-[#07111F] shadow-[0_16px_36px_rgba(217,180,90,0.18)] sm:w-auto"
+            disabled={isLocating}
+            className="group relative inline-flex w-full items-center justify-center gap-2 overflow-hidden rounded-2xl border border-[#F2C66D]/40 bg-[linear-gradient(135deg,#F2C66D,#D9B45A)] px-5 py-3 text-sm font-bold text-[#07111F] shadow-[0_16px_36px_rgba(217,180,90,0.18)] disabled:cursor-wait disabled:opacity-70 sm:w-auto"
             type="button"
           >
             <span className="absolute inset-0 translate-x-[-120%] bg-gradient-to-r from-transparent via-white/30 to-transparent transition duration-700 group-hover:translate-x-[120%]" />
             <MapPin className="relative size-4" />
-            <span className="relative">{t('enableLocationAction')}</span>
+            <span className="relative">{isLocating ? t('detectingLocation') : t('enableLocationAction')}</span>
           </button>
         </div>
 

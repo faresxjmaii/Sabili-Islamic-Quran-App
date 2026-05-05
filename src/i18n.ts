@@ -81,6 +81,9 @@ const translations = {
     chooseCityManually: 'Choose city manually',
     useCityManually: 'Use city',
     prayerTimesUnavailable: 'We couldn’t calculate prayer times for this location. Please try again or choose your city manually.',
+    locationAccessUnavailable: 'We couldn’t access your location. Please enable location permission or choose your city manually.',
+    detectingLocation: 'Detecting your location...',
+    gpsPrayerLocation: 'Current GPS location',
   },
   ar: {
     navHome: 'الرئيسية',
@@ -161,6 +164,9 @@ const translations = {
     chooseCityManually: 'اختر المدينة يدويًا',
     useCityManually: 'استخدام المدينة',
     prayerTimesUnavailable: 'تعذّر حساب أوقات الصلاة لهذا الموقع. جرّب مرّة أخرى أو اختر المدينة يدويًا.',
+    locationAccessUnavailable: 'تعذّر الوصول إلى موقعك. فعّل إذن الموقع أو اختر المدينة يدويًا.',
+    detectingLocation: 'جارٍ تحديد موقعك...',
+    gpsPrayerLocation: 'موقع GPS الحالي',
   },
   it: {
     navHome: 'Home',
@@ -241,6 +247,9 @@ const translations = {
     chooseCityManually: 'Scegli città manualmente',
     useCityManually: 'Usa città',
     prayerTimesUnavailable: 'Non siamo riusciti a calcolare gli orari di preghiera per questa posizione. Riprova o scegli la città manualmente.',
+    locationAccessUnavailable: 'Non siamo riusciti ad accedere alla tua posizione. Abilita il permesso di localizzazione o scegli la città manualmente.',
+    detectingLocation: 'Rilevamento della posizione...',
+    gpsPrayerLocation: 'Posizione GPS attuale',
   },
 } as const;
 

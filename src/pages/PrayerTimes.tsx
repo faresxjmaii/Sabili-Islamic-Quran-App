@@ -145,9 +145,12 @@ export default function PrayerTimesPage() {
   const {
     data,
     isError,
+    isFetching,
     needsLocationPermission,
     requestLocation,
     useManualLocation,
+    isLocating,
+    locationAccessError,
   } = usePrayerTimes();
   const next = useNextPrayer(data?.data?.timings);
   const { t, prayerName } = useI18n();
@@ -195,12 +198,19 @@ export default function PrayerTimesPage() {
       <div className="absolute -right-40 top-8 size-[34rem] rounded-full bg-[#10B981]/8 blur-3xl" />
       <div className="absolute -left-40 bottom-28 size-[30rem] rounded-full bg-[#D9B45A]/8 blur-3xl" />
 
-      {needsLocationPermission || isError ? (
+      {!data && (needsLocationPermission || isError || isLocating || isFetching || locationAccessError) ? (
         <div className="relative z-10 mx-auto max-w-[1480px] px-4 py-10 sm:px-6 lg:px-8 2xl:px-0">
           <LocationPermissionCard
             onEnable={requestLocation}
             onUseManual={useManualLocation}
-            errorMessage={isError ? t('prayerTimesUnavailable') : undefined}
+            isLocating={isLocating}
+            errorMessage={
+              locationAccessError
+                ? t('locationAccessUnavailable')
+                : isError
+                  ? t('prayerTimesUnavailable')
+                  : undefined
+            }
           />
         </div>
       ) : (

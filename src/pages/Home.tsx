@@ -269,9 +269,12 @@ export default function Home() {
   const {
     data,
     isError,
+    isFetching,
     needsLocationPermission,
     requestLocation,
     useManualLocation,
+    isLocating,
+    locationAccessError,
   } = usePrayerTimes();
   const timings = data?.data.timings;
   const nextPrayer = useNextPrayer(timings);
@@ -302,12 +305,19 @@ export default function Home() {
       <div className="relative z-10 mx-auto max-w-[1480px] px-4 sm:px-6 lg:px-8 lg:py-10 xl:px-10 2xl:px-0">
         <MobileTopBar />
 
-        {needsLocationPermission || isError ? (
+        {!data && (needsLocationPermission || isError || isLocating || isFetching || locationAccessError) ? (
           <div className="py-10">
             <LocationPermissionCard
               onEnable={requestLocation}
               onUseManual={useManualLocation}
-              errorMessage={isError ? t('prayerTimesUnavailable') : undefined}
+              isLocating={isLocating}
+              errorMessage={
+                locationAccessError
+                  ? t('locationAccessUnavailable')
+                  : isError
+                    ? t('prayerTimesUnavailable')
+                    : undefined
+              }
             />
           </div>
         ) : (

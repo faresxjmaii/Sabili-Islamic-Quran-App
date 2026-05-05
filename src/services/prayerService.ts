@@ -3,12 +3,32 @@ import type { PrayerTimesResponse, ResolvedLocation } from '../types';
 const BASE_URL = 'https://api.aladhan.com/v1';
 const VALID_CALCULATION_METHODS = new Set([0, 1, 2, 3, 4, 5, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 21]);
 const VALID_SCHOOLS = new Set([0, 1]);
+const isDevelopment = import.meta.env.DEV;
 
 export class PrayerApiError extends Error {
   constructor(message = 'prayerTimesUnavailable') {
     super(message);
     this.name = 'PrayerApiError';
   }
+}
+
+export class LocationAccessError extends Error {
+  code: number | 'unsupported' | 'invalid';
+
+  constructor(code: number | 'unsupported' | 'invalid', message = 'locationAccessUnavailable') {
+    super(message);
+    this.name = 'LocationAccessError';
+    this.code = code;
+  }
+}
+
+function logLocationDebug(message: string, details?: unknown) {
+  if (!isDevelopment) return;
+  if (details === undefined) {
+    console.debug(`[location] ${message}`);
+    return;
+  }
+  console.debug(`[location] ${message}`, details);
 }
 
 export function validateCoordinates(latitude: unknown, longitude: unknown): boolean {
@@ -38,6 +58,37 @@ export function normalizeMadhab(school: unknown): number {
 
 export function normalizePrayerApiError(): PrayerApiError {
   return new PrayerApiError();
+}
+
+function requestPosition(options: PositionOptions, retryUsed: boolean): Promise<GeolocationCoordinates> {
+  return new Promise((resolve, reject) => {
+    if (!navigator.geolocation) {
+      logLocationDebug('geolocation unsupported');
+      reject(new LocationAccessError('unsupported'));
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        logLocationDebug('geolocation success', {
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude,
+          accuracy: position.coords.accuracy,
+          retryUsed,
+        });
+        resolve(position.coords);
+      },
+      (error) => {
+        logLocationDebug('geolocation error', {
+          code: error.code,
+          message: error.message,
+          retryUsed,
+        });
+        reject(new LocationAccessError(error.code));
+      },
+      options
+    );
+  });
 }
 
 function getApiDate(date?: string) {
@@ -107,20 +158,23 @@ export async function fetchPrayerTimesByCity(
 }
 
 export function getCurrentPosition(): Promise<GeolocationCoordinates> {
-  return new Promise((resolve, reject) => {
-    if (!navigator.geolocation) {
-      reject(new Error('Geolocation is not supported by your browser.'));
-      return;
+  const highAccuracyOptions: PositionOptions = {
+    enableHighAccuracy: true,
+    timeout: 15000,
+    maximumAge: 60 * 1000,
+  };
+  const fallbackOptions: PositionOptions = {
+    enableHighAccuracy: false,
+    timeout: 20000,
+    maximumAge: 300000,
+  };
+
+  return requestPosition(highAccuracyOptions, false).catch((error) => {
+    if (error instanceof LocationAccessError && error.code === GeolocationPositionError.TIMEOUT) {
+      logLocationDebug('retrying geolocation with lower accuracy');
+      return requestPosition(fallbackOptions, true);
     }
-    navigator.geolocation.getCurrentPosition(
-      (position) => resolve(position.coords),
-      (error) => reject(new Error(error.message)),
-      {
-        enableHighAccuracy: true,
-        timeout: 20000,
-        maximumAge: 60 * 1000,
-      }
-    );
+    throw error;
   });
 }
 
@@ -136,20 +190,24 @@ export async function reverseGeocodeCoords(
     const data = await res.json();
     const city = data.city || data.locality || data.principalSubdivision || 'Current location';
     const country = data.countryName || '';
+    const displayName = [city, country].filter(Boolean).join(', ') || 'Current GPS location';
+
+    logLocationDebug('reverse geocoding success', { displayName });
 
     return {
       city,
       country,
-      displayName: [city, country].filter(Boolean).join(', '),
+      displayName,
       latitude,
       longitude,
       accuracy,
     };
   } catch {
+    logLocationDebug('reverse geocoding failed; using GPS fallback label');
     return {
-      city: 'Current location',
+      city: 'Current GPS location',
       country: '',
-      displayName: 'Current location',
+      displayName: 'Current GPS location',
       latitude,
       longitude,
       accuracy,

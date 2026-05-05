@@ -1,7 +1,8 @@
 import { useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Compass, LocateFixed, MapPin, Navigation, Search, Smartphone } from 'lucide-react';
-import { getCurrentPosition, reverseGeocodeCoords } from '../services/prayerService';
+import { getCurrentPosition, reverseGeocodeCoords, validateCoordinates } from '../services/prayerService';
+import { useI18n } from '../i18n';
 
 const KAABA = {
   latitude: 21.422487,
@@ -54,6 +55,7 @@ async function searchCity(query: string): Promise<QiblaLocation> {
 }
 
 export default function QiblaPage() {
+  const { t } = useI18n();
   const [location, setLocation] = useState<QiblaLocation | null>(null);
   const [heading, setHeading] = useState<number | null>(null);
   const [city, setCity] = useState('');
@@ -68,19 +70,23 @@ export default function QiblaPage() {
 
   const useCurrentLocation = async () => {
     setLoading(true);
-    setStatus('Requesting location permission...');
+    setStatus(t('detectingLocation'));
     try {
       const coords = await getCurrentPosition();
+      if (!validateCoordinates(coords.latitude, coords.longitude)) {
+        throw new Error('invalid-location');
+      }
       const resolved = await reverseGeocodeCoords(coords.latitude, coords.longitude, coords.accuracy);
+      const label = resolved.displayName || t('gpsPrayerLocation');
       setLocation({
         latitude: coords.latitude,
         longitude: coords.longitude,
         accuracy: coords.accuracy,
-        label: resolved.displayName,
+        label,
       });
       setStatus('Qibla direction calculated from your GPS position.');
-    } catch (error) {
-      setStatus(error instanceof Error ? error.message : 'Could not get your location. Try city search.');
+    } catch {
+      setStatus(t('locationAccessUnavailable'));
     } finally {
       setLoading(false);
     }
@@ -153,7 +159,7 @@ export default function QiblaPage() {
               >
                 <span className="absolute inset-0 translate-x-[-120%] bg-gradient-to-r from-transparent via-white/30 to-transparent transition duration-700 group-hover:translate-x-[120%]" />
                 <LocateFixed className="relative size-4" />
-                <span className="relative">{loading ? 'Loading...' : 'Use Current Location'}</span>
+                <span className="relative">{loading ? t('detectingLocation') : 'Use Current Location'}</span>
               </button>
               <button
                 onClick={enableDeviceCompass}

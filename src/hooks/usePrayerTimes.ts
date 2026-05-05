@@ -4,6 +4,7 @@ import {
   fetchPrayerTimesByCity,
   fetchPrayerTimesByCoords,
   getCurrentPosition,
+  LocationAccessError,
   normalizeCalculationMethod,
   normalizeMadhab,
   reverseGeocodeCoords,
@@ -16,6 +17,13 @@ export function usePrayerTimes() {
   const { settings, setCalculationMethod, setLocation } = useSettings();
   const { location, calculationMethod, madhab } = settings;
   const [manualCandidate, setManualCandidate] = useState<{ city: string; country: string } | null>(null);
+  const [gpsCandidate, setGpsCandidate] = useState<{
+    latitude: number;
+    longitude: number;
+    accuracy?: number;
+  } | null>(null);
+  const [isLocating, setIsLocating] = useState(false);
+  const [locationAccessError, setLocationAccessError] = useState(false);
   const [permissionState, setPermissionState] = useState<PermissionState | 'unknown' | 'unsupported'>('unknown');
   const [locationRequested, setLocationRequested] = useState(() => {
     if (location.type !== 'auto') return true;
@@ -77,18 +85,29 @@ export function usePrayerTimes() {
           country: location.country?.trim() ?? '',
         }
       : null);
+  const activeGpsLocation =
+    gpsCandidate ??
+    (location.type === 'auto' && validateCoordinates(location.latitude, location.longitude)
+      ? {
+          latitude: location.latitude as number,
+          longitude: location.longitude as number,
+          accuracy: location.accuracy,
+        }
+      : null);
   const hasValidManualLocation = validateManualLocation(
     activeManualLocation?.city,
     activeManualLocation?.country
   );
   const canUseAutoLocation =
-    location.type === 'auto' && (locationRequested || permissionState === 'granted');
+    location.type === 'auto' &&
+    (Boolean(activeGpsLocation) || (locationRequested && permissionState === 'granted'));
 
   const query = useQuery({
     queryKey: [
       'prayerTimes',
       location.type,
       activeManualLocation,
+      activeGpsLocation,
       normalizeCalculationMethod(calculationMethod),
       normalizeMadhab(madhab),
       canUseAutoLocation,
@@ -118,7 +137,7 @@ export function usePrayerTimes() {
       }
 
       if (location.type === 'auto') {
-        const coords = await getCurrentPosition();
+        const coords = activeGpsLocation ?? (await getCurrentPosition());
         if (!validateCoordinates(coords.latitude, coords.longitude)) {
           throw new Error('prayerTimesUnavailable');
         }
@@ -127,10 +146,27 @@ export function usePrayerTimes() {
           fetchPrayerTimesByCoords(coords.latitude, coords.longitude, method, school),
           reverseGeocodeCoords(coords.latitude, coords.longitude, coords.accuracy),
         ]);
+        const displayName = resolvedLocation.displayName || location.displayName || 'Current GPS location';
+
+        if (gpsCandidate || !location.latitude || !location.longitude) {
+          setLocation({
+            type: 'auto',
+            city: resolvedLocation.city,
+            country: resolvedLocation.country,
+            displayName,
+            latitude: coords.latitude,
+            longitude: coords.longitude,
+            accuracy: coords.accuracy,
+          });
+          setGpsCandidate(null);
+        }
 
         return {
           ...times,
-          resolvedLocation,
+          resolvedLocation: {
+            ...resolvedLocation,
+            displayName,
+          },
         };
       }
 
@@ -138,19 +174,55 @@ export function usePrayerTimes() {
     },
     staleTime: 10 * 60 * 1000,
     retry: 1,
-    enabled: hasValidManualLocation || canUseAutoLocation,
+    enabled: hasValidManualLocation || (canUseAutoLocation && !isLocating),
   });
 
-  const requestLocation = () => {
+  const refreshPermissionState = async () => {
+    if (!navigator.permissions?.query) return;
+    try {
+      const result = await navigator.permissions.query({ name: 'geolocation' });
+      setPermissionState(result.state);
+      if (import.meta.env.DEV) {
+        console.debug('[location] permission state', result.state);
+      }
+    } catch {
+      setPermissionState('unsupported');
+    }
+  };
+
+  const requestLocation = async () => {
     setManualCandidate(null);
+    setLocationAccessError(false);
+    setIsLocating(true);
     localStorage.setItem('sakina_location_requested', 'true');
     setLocationRequested(true);
+
+    await refreshPermissionState();
+
+    try {
+      const coords = await getCurrentPosition();
+      if (!validateCoordinates(coords.latitude, coords.longitude)) {
+        throw new LocationAccessError('invalid');
+      }
+      setGpsCandidate({
+        latitude: coords.latitude,
+        longitude: coords.longitude,
+        accuracy: coords.accuracy,
+      });
+      setPermissionState('granted');
+    } catch {
+      setLocationAccessError(true);
+    } finally {
+      setIsLocating(false);
+    }
   };
 
   const useManualLocation = (city: string, country: string) => {
     const trimmedCity = city.trim();
     const trimmedCountry = country.trim();
     if (!validateManualLocation(trimmedCity, trimmedCountry)) return;
+    setLocationAccessError(false);
+    setGpsCandidate(null);
     setManualCandidate({ city: trimmedCity, country: trimmedCountry });
   };
 
@@ -158,14 +230,16 @@ export function usePrayerTimes() {
     ...query,
     permissionState,
     locationRequested,
+    isLocating,
     needsLocationPermission:
       !query.data &&
       ((location.type === 'auto' &&
+        !activeGpsLocation &&
         !query.isError &&
-        !locationRequested &&
-        permissionState !== 'granted') ||
+        !canUseAutoLocation) ||
         (location.type === 'manual' && !hasValidManualLocation)),
     requestLocation,
     useManualLocation,
+    locationAccessError,
   };
 }
