@@ -1,9 +1,10 @@
-import type { AppSettings, Theme, Language, PrayerReminderOffset, UserLocation } from '../types';
+import type { AppSettings, Theme, Language, PrayerAlertSound, PrayerReminderOffset, UserLocation } from '../types';
 import { normalizeCalculationMethod, normalizeMadhab } from './prayerService';
 
 const SETTINGS_KEY = 'sakina_settings';
 const SUPPORTED_LANGUAGES: Language[] = ['en', 'ar', 'it'];
 const SUPPORTED_REMINDER_OFFSETS: PrayerReminderOffset[] = ['off', '0', '5', '10'];
+const SUPPORTED_ALERT_SOUNDS: PrayerAlertSound[] = ['short', 'full', 'silent'];
 
 const defaultSettings: AppSettings = {
   theme: 'system',
@@ -11,6 +12,7 @@ const defaultSettings: AppSettings = {
   calculationMethod: 3,
   madhab: 0,
   prayerReminderOffset: 'off',
+  prayerAlertSound: 'short',
   location: {
     type: 'auto',
   },
@@ -32,6 +34,9 @@ export const settingsService = {
       merged.madhab = normalizeMadhab(merged.madhab);
       if (!SUPPORTED_REMINDER_OFFSETS.includes(merged.prayerReminderOffset)) {
         merged.prayerReminderOffset = 'off';
+      }
+      if (!SUPPORTED_ALERT_SOUNDS.includes(merged.prayerAlertSound)) {
+        merged.prayerAlertSound = 'short';
       }
 
       return merged;
@@ -74,6 +79,10 @@ export const settingsService = {
 
   setPrayerReminderOffset(prayerReminderOffset: PrayerReminderOffset): AppSettings {
     return this.set({ prayerReminderOffset });
+  },
+
+  setPrayerAlertSound(prayerAlertSound: PrayerAlertSound): AppSettings {
+    return this.set({ prayerAlertSound });
   },
 };
 

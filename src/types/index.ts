@@ -84,6 +84,7 @@ export interface ChaptersResponse {
 export type Theme = 'light' | 'dark' | 'system';
 export type Language = 'en' | 'ar' | 'it';
 export type PrayerReminderOffset = 'off' | '0' | '5' | '10';
+export type PrayerAlertSound = 'short' | 'full' | 'silent';
 
 export interface UserLocation {
   type: 'auto' | 'manual';
@@ -106,4 +107,5 @@ export interface AppSettings {
   madhab: number;
   location: UserLocation;
   prayerReminderOffset: PrayerReminderOffset;
+  prayerAlertSound: PrayerAlertSound;
 }

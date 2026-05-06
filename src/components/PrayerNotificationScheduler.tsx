@@ -98,7 +98,7 @@ export default function PrayerNotificationScheduler() {
           }
         }
 
-        playPrayerAlertSound().catch(() => {
+        playPrayerAlertSound(settings.prayerAlertSound, prayer).catch(() => {
           // Browsers may block audio unless the user has interacted with the app.
         });
       }, delay);
@@ -110,7 +110,7 @@ export default function PrayerNotificationScheduler() {
       timersRef.current.forEach((timer) => window.clearTimeout(timer));
       timersRef.current = [];
     };
-  }, [data?.data.date.gregorian.date, data?.data.timings, prayerName, settings.prayerReminderOffset, t]);
+  }, [data?.data.date.gregorian.date, data?.data.timings, prayerName, settings.prayerAlertSound, settings.prayerReminderOffset, t]);
 
   return null;
 }

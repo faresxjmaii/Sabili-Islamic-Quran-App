@@ -3,8 +3,8 @@ import { useState } from 'react';
 import { Bell, BellRing, Volume2 } from 'lucide-react';
 import { useSettings } from '../app/useSettings';
 import { cn } from '../utils';
-import { languageOptions, useI18n } from '../i18n';
-import type { PrayerReminderOffset } from '../types';
+import { languageOptions, useI18n, type TranslationKey } from '../i18n';
+import type { PrayerAlertSound, PrayerName, PrayerReminderOffset } from '../types';
 import {
   getNotificationPermission,
   notificationsSupported,
@@ -19,6 +19,12 @@ const reminderOptions: Array<{ value: PrayerReminderOffset; labelKey: 'reminderO
   { value: '10', labelKey: 'reminder10Before' },
 ];
 
+const alertSoundOptions: Array<{ value: PrayerAlertSound; labelKey: TranslationKey }> = [
+  { value: 'short', labelKey: 'alertSoundShort' },
+  { value: 'full', labelKey: 'alertSoundFull' },
+  { value: 'silent', labelKey: 'alertSoundSilent' },
+];
+
 export default function SettingsPage() {
   const {
     settings,
@@ -28,6 +34,7 @@ export default function SettingsPage() {
     setMadhab,
     setLocation,
     setPrayerReminderOffset,
+    setPrayerAlertSound,
     resetSettings,
   } = useSettings();
   const { t } = useI18n();
@@ -48,10 +55,13 @@ export default function SettingsPage() {
     }
   };
 
-  const handleTestSound = async () => {
+  const handleTestSound = async (sound: PrayerAlertSound, prayer?: PrayerName) => {
     setSoundMessage('');
     try {
-      await playPrayerAlertSound();
+      const result = await playPrayerAlertSound(sound, prayer);
+      if (result === 'fallback') {
+        setSoundMessage(t('fullAdhanAudioMissing'));
+      }
     } catch {
       setSoundMessage(t('alertSoundBlocked'));
     }
@@ -170,18 +180,60 @@ export default function SettingsPage() {
             <Bell className="size-4" />
             {t('enablePrayerNotifications')}
           </button>
-          <button
-            onClick={handleTestSound}
-            className="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl border border-emerald-300/20 bg-emerald-400/12 px-4 text-sm font-bold text-[#10B981] transition hover:bg-emerald-400/18"
-            type="button"
-          >
-            <Volume2 className="size-4" />
-            {t('testAlertSound')}
-          </button>
         </div>
 
         <p className="mt-3 text-sm leading-6 text-[#B8C4D6]">{notificationStatus}</p>
         {soundMessage ? <p className="mt-2 text-sm leading-6 text-[#F4E7C5]">{soundMessage}</p> : null}
+
+        <div className="mt-4">
+          <h3 className="mb-2 text-sm font-semibold text-[#DCE5EF]">{t('prayerAlertSound')}</h3>
+          <div className="grid gap-2 sm:grid-cols-3">
+            {alertSoundOptions.map((option) => (
+              <button
+                key={option.value}
+                onClick={() => setPrayerAlertSound(option.value)}
+                className={cn(
+                  'min-h-11 rounded-2xl border px-3 text-sm font-semibold transition',
+                  settings.prayerAlertSound === option.value
+                    ? 'border-emerald-300/35 bg-emerald-400/14 text-[#A7F3D0]'
+                    : 'border-white/10 bg-white/[0.04] text-[#DCE5EF] hover:bg-white/[0.07]'
+                )}
+                type="button"
+              >
+                {t(option.labelKey)}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="mt-4 grid gap-2 sm:grid-cols-3">
+          <button
+            onClick={() => handleTestSound('short')}
+            className="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl border border-emerald-300/20 bg-emerald-400/12 px-4 text-sm font-bold text-[#10B981] transition hover:bg-emerald-400/18"
+            type="button"
+          >
+            <Volume2 className="size-4" />
+            {t('testShortAlert')}
+          </button>
+          <button
+            onClick={() => handleTestSound('full', 'Dhuhr')}
+            className="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl border border-emerald-300/20 bg-emerald-400/12 px-4 text-sm font-bold text-[#10B981] transition hover:bg-emerald-400/18"
+            type="button"
+          >
+            <Volume2 className="size-4" />
+            {t('testFullAdhan')}
+          </button>
+          <button
+            onClick={() => handleTestSound('full', 'Fajr')}
+            className="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl border border-emerald-300/20 bg-emerald-400/12 px-4 text-sm font-bold text-[#10B981] transition hover:bg-emerald-400/18"
+            type="button"
+          >
+            <Volume2 className="size-4" />
+            {t('testFajrAdhan')}
+          </button>
+        </div>
+
+        <p className="mt-3 text-sm leading-6 text-[#B8C4D6]">{t('audioPlaybackNote')}</p>
 
         <div className="mt-4">
           <h3 className="mb-2 text-sm font-semibold text-[#DCE5EF]">{t('reminderTiming')}</h3>
