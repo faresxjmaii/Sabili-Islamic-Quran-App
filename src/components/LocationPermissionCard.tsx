@@ -13,6 +13,7 @@ type LocationPermissionCardProps = {
   onUseManual: (place: GeocodedPlace) => void;
   errorMessage?: string;
   isLocating?: boolean;
+  isResolvingLocation?: boolean;
 };
 
 export default function LocationPermissionCard({
@@ -20,6 +21,7 @@ export default function LocationPermissionCard({
   onUseManual,
   errorMessage,
   isLocating = false,
+  isResolvingLocation = false,
 }: LocationPermissionCardProps) {
   const { language, t } = useI18n();
   const [query, setQuery] = useState('');
@@ -30,6 +32,7 @@ export default function LocationPermissionCard({
   const [searchError, setSearchError] = useState('');
   const inputValue = selectedPlace ? getPlaceDisplayName(selectedPlace, language) : query;
   const canSubmit = Boolean(selectedPlace) || query.trim().length >= 2;
+  const isManualBusy = isResolving || isResolvingLocation;
 
   useEffect(() => {
     const trimmedQuery = query.trim();
@@ -189,12 +192,12 @@ export default function LocationPermissionCard({
           </div>
 
           <button
-            disabled={!canSubmit || isResolving}
+            disabled={!canSubmit || isManualBusy}
             onClick={handleUseManual}
             className="mt-2 inline-flex h-11 w-full items-center justify-center gap-2 rounded-2xl border border-emerald-300/20 bg-emerald-400/12 px-5 text-sm font-bold text-[#10B981] transition hover:bg-emerald-400/18 disabled:cursor-not-allowed disabled:opacity-45"
             type="button"
           >
-            {isResolving ? <Loader2 className="size-4 animate-spin" /> : <Compass className="size-4" />}
+            {isManualBusy ? <Loader2 className="size-4 animate-spin" /> : <Compass className="size-4" />}
             {t('useThisLocation')}
           </button>
         </div>

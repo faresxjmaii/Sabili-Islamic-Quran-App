@@ -212,6 +212,7 @@ export default function PrayerTimesPage() {
             onEnable={requestLocation}
             onUseManual={useManualLocation}
             isLocating={isLocating}
+            isResolvingLocation={isFetching}
             errorMessage={
               locationAccessError
                 ? t('locationAccessUnavailable')

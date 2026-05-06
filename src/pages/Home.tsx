@@ -63,6 +63,7 @@ export default function Home() {
               onEnable={requestLocation}
               onUseManual={useManualLocation}
               isLocating={isLocating}
+              isResolvingLocation={isFetching}
               errorMessage={
                 locationAccessError
                   ? t('locationAccessUnavailable')
