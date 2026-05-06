@@ -1,6 +1,6 @@
 import type { PrayerAlertSound, PrayerName } from '../types';
 
-export const SHORT_PRAYER_ALERT_SOUND_URL = '/audio/adhan-allahu-akbar.wav';
+export const SHORT_PRAYER_ALERT_SOUND_URL = '/audio/allah-akbar.mp3';
 export const FULL_ADHAN_SOUND_URL = '/audio/adhan-full.mp3';
 export const FAJR_ADHAN_SOUND_URL = '/audio/adhan-fajr.mp3';
 
