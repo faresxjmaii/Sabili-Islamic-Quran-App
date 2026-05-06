@@ -1,8 +1,12 @@
-# Al Iselm Nour
+# Sabili
 
-A premium Islamic web app for prayer times, Quran reading in Riwayat Qaloun, 60 Hizb browsing, Adhkar, Qibla tools, and a multilingual worship experience.
+Your daily path to prayer, Quran and dhikr.
 
-Live app: [https://al-iselm-nour.vercel.app](https://al-iselm-nour.vercel.app)
+سبيلي - طريقك اليومي للصلاة والقرآن والذكر
+
+Il tuo percorso quotidiano per preghiera, Corano e dhikr.
+
+Live app: [https://sabili.vercel.app](https://sabili.vercel.app)
 
 ## Features
 

@@ -175,7 +175,7 @@ export default function PrayerTimesPage() {
 
   const handleShare = async () => {
     const summary = [
-      'Al Iselm Nour',
+      t('appName'),
       `${t('prayerTimesTitle')} - ${locationLabel}`,
       `${t('nextPrayer')}: ${nextPrayerLabel} ${next?.time ?? ''}`,
       `${t('timeRemaining')}: ${next?.timeLeft ?? ''}`,
@@ -184,7 +184,7 @@ export default function PrayerTimesPage() {
     try {
       if (navigator.share) {
         await navigator.share({
-          title: 'Al Iselm Nour',
+          title: t('appName'),
           text: summary,
           url: window.location.href,
         });

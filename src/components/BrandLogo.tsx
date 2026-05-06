@@ -1,10 +1,13 @@
 import { Link } from 'react-router-dom';
+import { useI18n } from '../i18n';
 
 type BrandLogoProps = {
   compact?: boolean;
 };
 
 export default function BrandLogo({ compact = false }: BrandLogoProps) {
+  const { t } = useI18n();
+
   return (
     <Link to="/" className="group flex shrink-0 items-center gap-3">
       <div className={compact ? 'relative grid size-11 place-items-center text-[#D9B45A]' : 'relative grid size-12 place-items-center text-[#D9B45A]'}>
@@ -14,7 +17,7 @@ export default function BrandLogo({ compact = false }: BrandLogoProps) {
         <span className="absolute size-1.5 rounded-full bg-[#D9B45A] shadow-[0_0_24px_6px_rgba(217,180,90,0.9)]" />
       </div>
       <span className={compact ? 'text-xl font-semibold tracking-[-0.02em] text-white' : 'text-2xl font-semibold tracking-[-0.02em] text-white'}>
-        Al Iselm Nour
+        {t('appName')}
       </span>
     </Link>
   );

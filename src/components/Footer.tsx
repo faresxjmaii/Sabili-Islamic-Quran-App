@@ -26,7 +26,7 @@ export default function Footer() {
               <span className="absolute inset-2 rounded-[7px] border border-current" />
               <Sparkles className="size-4" />
             </span>
-            <span className="text-3xl font-semibold text-white">Al Iselm Nour</span>
+            <span className="text-3xl font-semibold text-white">{t('appName')}</span>
           </Link>
           <p className="max-w-[260px] text-sm leading-6 text-[#B8C4D6]">{t('aboutP1')}</p>
         </div>
