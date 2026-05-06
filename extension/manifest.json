@@ -1,0 +1,20 @@
+{
+  "manifest_version": 3,
+  "name": "Sabili New Tab",
+  "short_name": "Sabili",
+  "version": "1.0.0",
+  "description": "Islamic new tab dashboard with prayer times, Quran, Adhkar, and reminders.",
+  "chrome_url_overrides": {
+    "newtab": "newtab.html"
+  },
+  "icons": {
+    "16": "icons/icon-16.png",
+    "48": "icons/icon-48.png",
+    "128": "icons/icon-128.png"
+  },
+  "permissions": ["storage", "geolocation"],
+  "host_permissions": [
+    "https://api.aladhan.com/*",
+    "https://nominatim.openstreetmap.org/*"
+  ]
+}
