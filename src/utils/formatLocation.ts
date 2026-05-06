@@ -20,6 +20,11 @@ function localizeCountry(country: string, language: Language) {
   return new Intl.DisplayNames([language], { type: 'region' }).of(code) ?? country;
 }
 
+function localizeCountryCode(countryCode: string, language: Language) {
+  if (typeof Intl.DisplayNames === 'undefined') return '';
+  return new Intl.DisplayNames([language], { type: 'region' }).of(countryCode) ?? '';
+}
+
 export function formatLocation({
   city,
   country,
@@ -37,6 +42,8 @@ export function formatLocation({
   const knownCountry = getCountryByCode(countryCode);
   const formattedCountry = knownCountry
     ? getCountryName(knownCountry, language)
+    : countryCode
+      ? localizeCountryCode(countryCode, language)
     : country?.trim()
       ? localizeCountry(country.trim(), language)
       : '';

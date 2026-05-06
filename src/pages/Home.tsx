@@ -55,7 +55,7 @@ export default function Home() {
       <div className="absolute -left-40 top-1/3 size-[28rem] rounded-full bg-[#D9B45A]/7 blur-3xl" />
 
       <div className="relative z-10 mx-auto max-w-[1480px] px-4 sm:px-6 lg:px-8 lg:py-10 xl:px-10 2xl:px-0">
-        <MobileTopBar />
+        <MobileTopBar showLanguageSelector={!showLocationPrompt} />
 
         {showLocationPrompt ? (
           <div className="py-10">

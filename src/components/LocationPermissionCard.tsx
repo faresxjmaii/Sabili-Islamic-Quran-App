@@ -1,23 +1,16 @@
-import { useMemo, useState } from 'react';
-import { CheckCircle2, Compass, LocateFixed, MapPin } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { CheckCircle2, Compass, LocateFixed, Loader2, MapPin, Search } from 'lucide-react';
 import { useI18n } from '../i18n';
-import LanguageSelector from './LanguageSelector';
 import {
-  getCountryName,
-  normalizeCountryInput,
-  supportedCountries,
-} from '../utils/countryNormalization';
-import {
-  getPlaceCityName,
-  getPlaceCountry,
   getPlaceDisplayName,
-  getPlaceSuggestions,
-  type PlaceSuggestion,
-} from '../utils/placeSuggestions';
+  searchPlaces,
+  type GeocodedPlace,
+} from '../services/geocodingService';
+import LanguageSelector from './LanguageSelector';
 
 type LocationPermissionCardProps = {
   onEnable: () => void;
-  onUseManual: (city: string, country: string) => void;
+  onUseManual: (place: GeocodedPlace) => void;
   errorMessage?: string;
   isLocating?: boolean;
 };
@@ -29,36 +22,77 @@ export default function LocationPermissionCard({
   isLocating = false,
 }: LocationPermissionCardProps) {
   const { language, t } = useI18n();
-  const [city, setCity] = useState('');
-  const [country, setCountry] = useState('');
-  const [formTouched, setFormTouched] = useState(false);
-  const [selectedPlace, setSelectedPlace] = useState<PlaceSuggestion | null>(null);
+  const [query, setQuery] = useState('');
+  const [suggestions, setSuggestions] = useState<GeocodedPlace[]>([]);
+  const [selectedPlace, setSelectedPlace] = useState<GeocodedPlace | null>(null);
+  const [isSearching, setIsSearching] = useState(false);
+  const [isResolving, setIsResolving] = useState(false);
+  const [searchError, setSearchError] = useState('');
+  const inputValue = selectedPlace ? getPlaceDisplayName(selectedPlace, language) : query;
+  const canSubmit = Boolean(selectedPlace) || query.trim().length >= 2;
 
-  const cityValue = selectedPlace ? getPlaceCityName(selectedPlace, language) : city;
-  const countryValue = selectedPlace ? getCountryName(getPlaceCountry(selectedPlace), language) : country;
-  const suggestions = useMemo(
-    () => selectedPlace ? [] : getPlaceSuggestions({ city, country }),
-    [city, country, selectedPlace]
-  );
-  const normalizedCountry = useMemo(
-    () => selectedPlace ? getPlaceCountry(selectedPlace) : normalizeCountryInput(country),
-    [country, selectedPlace]
-  );
-  const hasCity = selectedPlace ? true : city.trim().length > 0;
-  const canUseManual = hasCity && Boolean(normalizedCountry);
-  const showValidation = formTouched && !canUseManual;
+  useEffect(() => {
+    const trimmedQuery = query.trim();
+    if (selectedPlace || trimmedQuery.length < 2) return;
 
-  const handleSelectPlace = (place: PlaceSuggestion) => {
+    const controller = new AbortController();
+    let active = true;
+    const timeout = window.setTimeout(() => {
+      setIsSearching(true);
+      searchPlaces(trimmedQuery, language, 5, controller.signal)
+        .then((results) => {
+          if (active) setSuggestions(results);
+        })
+        .catch(() => {
+          if (active) setSuggestions([]);
+        })
+        .finally(() => {
+          if (active) setIsSearching(false);
+        });
+    }, 350);
+
+    return () => {
+      active = false;
+      window.clearTimeout(timeout);
+      controller.abort();
+    };
+  }, [language, query, selectedPlace]);
+
+  const handleSelectPlace = (place: GeocodedPlace) => {
     setSelectedPlace(place);
-    setCity('');
-    setCountry('');
-    setFormTouched(false);
+    setSuggestions([]);
+    setSearchError('');
   };
 
-  const handleUseManual = () => {
-    setFormTouched(true);
-    if (!canUseManual || !normalizedCountry) return;
-    onUseManual(selectedPlace?.cityApi ?? city, normalizedCountry.nameEn);
+  const handleUseManual = async () => {
+    setSearchError('');
+
+    if (selectedPlace) {
+      onUseManual(selectedPlace);
+      return;
+    }
+
+    const trimmedQuery = query.trim();
+    if (trimmedQuery.length < 2) {
+      setSearchError(t('placeSearchNotFound'));
+      return;
+    }
+
+    setIsResolving(true);
+    try {
+      const [place] = await searchPlaces(trimmedQuery, language, 1);
+      if (!place) {
+        setSearchError(t('placeSearchNotFound'));
+        return;
+      }
+      setSelectedPlace(place);
+      setSuggestions([]);
+      onUseManual(place);
+    } catch {
+      setSearchError(t('placeSearchNotFound'));
+    } finally {
+      setIsResolving(false);
+    }
   };
 
   return (
@@ -99,48 +133,28 @@ export default function LocationPermissionCard({
           <span className="relative">{isLocating ? t('detectingLocation') : t('locationUseCurrent')}</span>
         </button>
 
-        <div id="manual-location" className="mt-4 rounded-[22px] border border-white/10 bg-white/[0.035] p-3 text-start sm:p-4">
-          <p className="mb-3 flex items-center gap-2 text-sm font-bold text-white sm:text-base">
-            <Compass className="size-4 text-[#10B981] sm:size-5" />
-            {t('chooseCityManually')}
-          </p>
-
-          <div className="grid gap-2.5 sm:grid-cols-2">
-            <label className="block">
-              <span className="mb-1.5 block text-xs font-semibold text-[#DCE5EF] sm:text-sm">{t('city')}</span>
+        <div className="mt-4 rounded-[22px] border border-white/10 bg-white/[0.035] p-3 text-start sm:p-4">
+          <label className="block">
+            <span className="mb-2 flex items-center gap-2 text-sm font-bold text-white sm:text-base">
+              <Compass className="size-4 text-[#10B981] sm:size-5" />
+              {t('chooseCityManually')}
+            </span>
+            <div className="relative">
+              <Search className="pointer-events-none absolute top-1/2 size-4 -translate-y-1/2 text-[#6F8198] ltr:left-4 rtl:right-4" />
               <input
-                value={cityValue}
+                value={inputValue}
                 onChange={(event) => {
-                  setCity(event.target.value);
+                  setQuery(event.target.value);
                   setSelectedPlace(null);
-                  setFormTouched(false);
+                  setSuggestions([]);
+                  setSearchError('');
+                  setIsSearching(false);
                 }}
-                placeholder={t('cityPlaceholder')}
-                className="h-11 w-full rounded-2xl border border-white/10 bg-[#07111F]/70 px-4 text-sm text-white outline-none transition placeholder:text-[#6F8198] focus:border-[#D9B45A]/35"
+                placeholder={t('locationSearchPlaceholder')}
+                className="h-11 w-full rounded-2xl border border-white/10 bg-[#07111F]/70 py-2 text-sm text-white outline-none transition placeholder:text-[#6F8198] focus:border-[#D9B45A]/35 ltr:pl-10 ltr:pr-4 rtl:pl-4 rtl:pr-10"
               />
-            </label>
-
-            <label className="block">
-              <span className="mb-1.5 block text-xs font-semibold text-[#DCE5EF] sm:text-sm">{t('country')}</span>
-              <input
-                value={countryValue}
-                onBlur={() => setFormTouched(true)}
-                onChange={(event) => {
-                  setCountry(event.target.value);
-                  setSelectedPlace(null);
-                  setFormTouched(false);
-                }}
-                placeholder={t('countryPlaceholder')}
-                list="supported-country-options"
-                className="h-11 w-full rounded-2xl border border-white/10 bg-[#07111F]/70 px-4 text-sm text-white outline-none transition placeholder:text-[#6F8198] focus:border-[#D9B45A]/35"
-              />
-              <datalist id="supported-country-options">
-                {supportedCountries.map((item) => (
-                  <option key={item.code} value={getCountryName(item, language)} />
-                ))}
-              </datalist>
-            </label>
-          </div>
+            </div>
+          </label>
 
           {suggestions.length > 0 ? (
             <div className="mt-3 grid gap-2">
@@ -152,30 +166,35 @@ export default function LocationPermissionCard({
                   type="button"
                 >
                   <span>{getPlaceDisplayName(place, language)}</span>
-                  <CheckCircle2 className="size-4 text-[#10B981]" />
+                  <CheckCircle2 className="size-4 shrink-0 text-[#10B981]" />
                 </button>
               ))}
             </div>
           ) : null}
 
           <div className="mt-2 min-h-5 text-sm leading-5">
-            {showValidation ? (
-              <p className="text-[#F4E7C5]">{t('validCityCountryRequired')}</p>
-            ) : normalizedCountry && country.trim() ? (
+            {isSearching ? (
+              <p className="inline-flex items-center gap-2 text-[#B8C4D6]">
+                <Loader2 className="size-4 animate-spin text-[#10B981]" />
+                {t('searchingCity')}
+              </p>
+            ) : searchError ? (
+              <p className="text-[#F4E7C5]">{searchError}</p>
+            ) : selectedPlace ? (
               <p className="inline-flex items-center gap-2 text-[#DCE5EF]">
                 <CheckCircle2 className="size-4 text-[#10B981]" />
-                {getCountryName(normalizedCountry, language)}
+                {getPlaceDisplayName(selectedPlace, language)}
               </p>
             ) : null}
           </div>
 
           <button
-            disabled={!canUseManual}
+            disabled={!canSubmit || isResolving}
             onClick={handleUseManual}
             className="mt-2 inline-flex h-11 w-full items-center justify-center gap-2 rounded-2xl border border-emerald-300/20 bg-emerald-400/12 px-5 text-sm font-bold text-[#10B981] transition hover:bg-emerald-400/18 disabled:cursor-not-allowed disabled:opacity-45"
             type="button"
           >
-            <Compass className="size-4" />
+            {isResolving ? <Loader2 className="size-4 animate-spin" /> : <Compass className="size-4" />}
             {t('useThisLocation')}
           </button>
         </div>

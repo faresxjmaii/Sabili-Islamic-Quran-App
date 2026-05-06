@@ -1,9 +1,11 @@
-import { NavLink } from 'react-router-dom';
+import { NavLink, useLocation } from 'react-router-dom';
 import { BookOpen, Clock3, Home, Settings, UserRound, Wind } from 'lucide-react';
 import { cn } from '../utils';
 import BrandLogo from './BrandLogo';
 import LanguageSelector from './LanguageSelector';
+import { useSettings } from '../app/useSettings';
 import { useI18n, type TranslationKey } from '../i18n';
+import { validateCoordinates } from '../services/prayerService';
 
 const navItems = [
   { to: '/', labelKey: 'navHome', icon: Home, end: true },
@@ -15,6 +17,12 @@ const navItems = [
 
 export default function TopNav() {
   const { t } = useI18n();
+  const { pathname } = useLocation();
+  const { settings } = useSettings();
+  const locationIsConfigured = settings.location.type === 'manual'
+    ? Boolean(settings.location.city) || validateCoordinates(settings.location.latitude, settings.location.longitude)
+    : validateCoordinates(settings.location.latitude, settings.location.longitude);
+  const hideHeaderLanguage = pathname === '/' && !locationIsConfigured;
 
   return (
     <header className="relative z-40 hidden border-b border-white/10 bg-[#07111F]/92 backdrop-blur-2xl lg:block">
@@ -43,7 +51,7 @@ export default function TopNav() {
         </nav>
 
         <div className="flex shrink-0 items-center gap-3">
-          <LanguageSelector />
+          {hideHeaderLanguage ? null : <LanguageSelector />}
           <button
             className="grid size-12 place-items-center rounded-full border border-[#D9B45A]/45 bg-[radial-gradient(circle_at_50%_25%,#D9B45A_0%,#725F34_34%,#0A1B2E_66%)] text-white shadow-[0_10px_24px_rgba(217,180,90,0.18)] transition hover:border-[#F2C66D]"
             aria-label="Profile"
