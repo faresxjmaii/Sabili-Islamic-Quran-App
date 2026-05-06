@@ -56,6 +56,7 @@ registerAliases(COUNTRIES[1], [
   'tun',
   'tunisia',
   'tunisie',
+  'tounes',
   'تونس',
 ]);
 
