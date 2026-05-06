@@ -1,7 +1,7 @@
 {
   "name": "Sabili",
   "short_name": "Sabili",
-  "description": "Your daily path to prayer, Quran and dhikr",
+  "description": "Sabili is an Islamic Quran app with prayer times, Adhkar, Qibla direction, and daily prayer reminders.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
