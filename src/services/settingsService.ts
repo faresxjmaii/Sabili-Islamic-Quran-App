@@ -1,14 +1,16 @@
-import type { AppSettings, Theme, Language, UserLocation } from '../types';
+import type { AppSettings, Theme, Language, PrayerReminderOffset, UserLocation } from '../types';
 import { normalizeCalculationMethod, normalizeMadhab } from './prayerService';
 
 const SETTINGS_KEY = 'sakina_settings';
 const SUPPORTED_LANGUAGES: Language[] = ['en', 'ar', 'it'];
+const SUPPORTED_REMINDER_OFFSETS: PrayerReminderOffset[] = ['off', '0', '5', '10'];
 
 const defaultSettings: AppSettings = {
   theme: 'system',
   language: 'en',
   calculationMethod: 3,
   madhab: 0,
+  prayerReminderOffset: 'off',
   location: {
     type: 'auto',
   },
@@ -28,6 +30,9 @@ export const settingsService = {
 
       merged.calculationMethod = normalizeCalculationMethod(merged.calculationMethod);
       merged.madhab = normalizeMadhab(merged.madhab);
+      if (!SUPPORTED_REMINDER_OFFSETS.includes(merged.prayerReminderOffset)) {
+        merged.prayerReminderOffset = 'off';
+      }
 
       return merged;
     } catch {
@@ -65,6 +70,10 @@ export const settingsService = {
 
   setMadhab(madhab: number): AppSettings {
     return this.set({ madhab });
+  },
+
+  setPrayerReminderOffset(prayerReminderOffset: PrayerReminderOffset): AppSettings {
+    return this.set({ prayerReminderOffset });
   },
 };
 

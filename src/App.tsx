@@ -4,6 +4,7 @@ import { SettingsProvider } from './app/SettingsContext';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import BottomNav from './components/BottomNav';
 import Footer from './components/Footer';
+import PrayerNotificationScheduler from './components/PrayerNotificationScheduler';
 import QuranMiniPlayer from './components/QuranMiniPlayer';
 import TopNav from './components/TopNav';
 import AboutPage from './pages/About';
@@ -43,6 +44,7 @@ function LocalizedAppShell() {
               </Routes>
             </main>
             <Footer />
+            <PrayerNotificationScheduler />
             <QuranMiniPlayer />
           </div>
           <BottomNav />

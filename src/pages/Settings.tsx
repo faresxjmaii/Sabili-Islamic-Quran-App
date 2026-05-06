@@ -1,7 +1,23 @@
 import { motion } from 'framer-motion';
+import { useState } from 'react';
+import { Bell, BellRing, Volume2 } from 'lucide-react';
 import { useSettings } from '../app/useSettings';
 import { cn } from '../utils';
 import { languageOptions, useI18n } from '../i18n';
+import type { PrayerReminderOffset } from '../types';
+import {
+  getNotificationPermission,
+  notificationsSupported,
+  playPrayerAlertSound,
+  requestPrayerNotificationPermission,
+} from '../services/prayerNotificationService';
+
+const reminderOptions: Array<{ value: PrayerReminderOffset; labelKey: 'reminderOff' | 'reminderAtPrayerTime' | 'reminder5Before' | 'reminder10Before' }> = [
+  { value: 'off', labelKey: 'reminderOff' },
+  { value: '0', labelKey: 'reminderAtPrayerTime' },
+  { value: '5', labelKey: 'reminder5Before' },
+  { value: '10', labelKey: 'reminder10Before' },
+];
 
 export default function SettingsPage() {
   const {
@@ -11,15 +27,44 @@ export default function SettingsPage() {
     setCalculationMethod,
     setMadhab,
     setLocation,
+    setPrayerReminderOffset,
     resetSettings,
   } = useSettings();
   const { t } = useI18n();
+  const [notificationPermission, setNotificationPermission] = useState(() => getNotificationPermission());
+  const [soundMessage, setSoundMessage] = useState('');
 
   const handleReset = () => {
     if (confirm(t('resetConfirm'))) {
       resetSettings();
     }
   };
+
+  const handleEnableNotifications = async () => {
+    const permission = await requestPrayerNotificationPermission();
+    setNotificationPermission(permission);
+    if (permission === 'granted' && settings.prayerReminderOffset === 'off') {
+      setPrayerReminderOffset('0');
+    }
+  };
+
+  const handleTestSound = async () => {
+    setSoundMessage('');
+    try {
+      await playPrayerAlertSound();
+    } catch {
+      setSoundMessage(t('alertSoundBlocked'));
+    }
+  };
+
+  const notificationStatus =
+    notificationPermission === 'unsupported'
+      ? t('notificationUnsupported')
+      : notificationPermission === 'granted'
+        ? t('notificationPermissionGranted')
+        : notificationPermission === 'denied'
+          ? t('notificationPermissionDenied')
+          : t('notificationBestResults');
 
   return (
     <motion.div
@@ -102,6 +147,62 @@ export default function SettingsPage() {
           <option value={0}>{t('shafiMadhhab')}</option>
           <option value={1}>{t('hanafiMadhhab')}</option>
         </select>
+      </section>
+
+      <section className="rounded-xl border border-white/10 bg-[#0F2438]/85 p-4 shadow-[0_20px_55px_rgba(0,0,0,0.18)]">
+        <div className="mb-4 flex items-start gap-3">
+          <span className="grid size-11 shrink-0 place-items-center rounded-2xl border border-[#D9B45A]/25 bg-[#D9B45A]/10 text-[#F2C66D]">
+            <BellRing className="size-5" />
+          </span>
+          <div>
+            <h2 className="font-semibold text-white">{t('prayerNotifications')}</h2>
+            <p className="mt-1 text-sm leading-6 text-[#B8C4D6]">{t('notificationBestResults')}</p>
+          </div>
+        </div>
+
+        <div className="flex flex-col gap-3 sm:flex-row">
+          <button
+            onClick={handleEnableNotifications}
+            disabled={!notificationsSupported() || notificationPermission === 'granted'}
+            className="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl border border-[#F2C66D]/35 bg-[#D9B45A]/12 px-4 text-sm font-bold text-[#F2C66D] transition hover:bg-[#D9B45A]/18 disabled:cursor-not-allowed disabled:opacity-55"
+            type="button"
+          >
+            <Bell className="size-4" />
+            {t('enablePrayerNotifications')}
+          </button>
+          <button
+            onClick={handleTestSound}
+            className="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl border border-emerald-300/20 bg-emerald-400/12 px-4 text-sm font-bold text-[#10B981] transition hover:bg-emerald-400/18"
+            type="button"
+          >
+            <Volume2 className="size-4" />
+            {t('testAlertSound')}
+          </button>
+        </div>
+
+        <p className="mt-3 text-sm leading-6 text-[#B8C4D6]">{notificationStatus}</p>
+        {soundMessage ? <p className="mt-2 text-sm leading-6 text-[#F4E7C5]">{soundMessage}</p> : null}
+
+        <div className="mt-4">
+          <h3 className="mb-2 text-sm font-semibold text-[#DCE5EF]">{t('reminderTiming')}</h3>
+          <div className="grid gap-2 sm:grid-cols-4">
+            {reminderOptions.map((option) => (
+              <button
+                key={option.value}
+                onClick={() => setPrayerReminderOffset(option.value)}
+                className={cn(
+                  'min-h-11 rounded-2xl border px-3 text-sm font-semibold transition',
+                  settings.prayerReminderOffset === option.value
+                    ? 'border-emerald-300/35 bg-emerald-400/14 text-[#A7F3D0]'
+                    : 'border-white/10 bg-white/[0.04] text-[#DCE5EF] hover:bg-white/[0.07]'
+                )}
+                type="button"
+              >
+                {t(option.labelKey)}
+              </button>
+            ))}
+          </div>
+        </div>
       </section>
 
       <section className="p-4 glass rounded-xl">

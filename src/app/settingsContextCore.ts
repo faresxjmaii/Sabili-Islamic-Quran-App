@@ -1,5 +1,5 @@
 import { createContext } from 'react';
-import type { AppSettings, Language, Theme, UserLocation } from '../types';
+import type { AppSettings, Language, PrayerReminderOffset, Theme, UserLocation } from '../types';
 
 export interface SettingsContextValue {
   settings: AppSettings;
@@ -8,6 +8,7 @@ export interface SettingsContextValue {
   setLocation: (location: UserLocation) => void;
   setCalculationMethod: (method: number) => void;
   setMadhab: (madhab: number) => void;
+  setPrayerReminderOffset: (offset: PrayerReminderOffset) => void;
   resetSettings: () => void;
 }
 

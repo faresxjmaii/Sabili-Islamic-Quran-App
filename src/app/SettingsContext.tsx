@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { settingsService } from '../services/settingsService';
 import { SettingsContext } from './settingsContextCore';
-import type { AppSettings, Language, Theme, UserLocation } from '../types';
+import type { AppSettings, Language, PrayerReminderOffset, Theme, UserLocation } from '../types';
 
 export function SettingsProvider({ children }: { children: React.ReactNode }) {
   const [settings, setSettings] = useState<AppSettings>(() => settingsService.get());
@@ -52,6 +52,10 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
     setSettings(settingsService.setMadhab(madhab));
   };
 
+  const setPrayerReminderOffset = (offset: PrayerReminderOffset) => {
+    setSettings(settingsService.setPrayerReminderOffset(offset));
+  };
+
   const resetSettings = () => {
     setSettings(settingsService.reset());
   };
@@ -64,6 +68,7 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
       setLocation,
       setCalculationMethod,
       setMadhab,
+      setPrayerReminderOffset,
       resetSettings,
     }}>
       {children}

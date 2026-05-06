@@ -83,6 +83,7 @@ export interface ChaptersResponse {
 
 export type Theme = 'light' | 'dark' | 'system';
 export type Language = 'en' | 'ar' | 'it';
+export type PrayerReminderOffset = 'off' | '0' | '5' | '10';
 
 export interface UserLocation {
   type: 'auto' | 'manual';
@@ -104,4 +105,5 @@ export interface AppSettings {
   calculationMethod: number;
   madhab: number;
   location: UserLocation;
+  prayerReminderOffset: PrayerReminderOffset;
 }
