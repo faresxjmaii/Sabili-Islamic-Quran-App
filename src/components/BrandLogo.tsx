@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { useI18n } from '../i18n';
+import { scrollToTopForPageNavigation } from '../utils/routeScroll';
 
 type BrandLogoProps = {
   compact?: boolean;
@@ -9,7 +10,7 @@ export default function BrandLogo({ compact = false }: BrandLogoProps) {
   const { t } = useI18n();
 
   return (
-    <Link to="/" className="group flex shrink-0 items-center py-0.5">
+    <Link to="/" onClick={scrollToTopForPageNavigation} className="group flex shrink-0 items-center py-0.5">
       <img
         src="/brand/sabili-logo.png"
         alt={t('appName')}

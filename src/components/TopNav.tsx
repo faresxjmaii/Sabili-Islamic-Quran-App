@@ -3,6 +3,7 @@ import { BookOpen, Clock3, Home, Settings, UserRound, Wind } from 'lucide-react'
 import { cn } from '../utils';
 import BrandLogo from './BrandLogo';
 import LanguageSelector from './LanguageSelector';
+import { scrollToTopForPageNavigation } from '../utils/routeScroll';
 import { useSettings } from '../app/useSettings';
 import { useI18n, type TranslationKey } from '../i18n';
 import { validateCoordinates } from '../services/prayerService';
@@ -35,6 +36,7 @@ export default function TopNav() {
               key={to}
               to={to}
               end={end}
+              onClick={scrollToTopForPageNavigation}
               className={({ isActive }) =>
                 cn(
                   'group relative flex items-center gap-2 px-1 py-3 text-[15px] font-semibold transition duration-200',

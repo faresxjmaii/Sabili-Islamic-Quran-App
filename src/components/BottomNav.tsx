@@ -1,6 +1,7 @@
 import { NavLink, useLocation } from 'react-router-dom';
 import { BookOpen, Clock3, Home, MoreHorizontal, Wind } from 'lucide-react';
 import { useI18n, type TranslationKey } from '../i18n';
+import { scrollToTopForPageNavigation } from '../utils/routeScroll';
 
 const navItems = [
   { to: '/', labelKey: 'navHome', icon: Home },
@@ -21,7 +22,12 @@ export default function BottomNav() {
           const isActive = to === '/' ? location.pathname === '/' : location.pathname.startsWith(to);
 
           return (
-            <NavLink key={to} to={to} className="relative flex flex-1 flex-col items-center gap-1 py-2">
+            <NavLink
+              key={to}
+              to={to}
+              onClick={scrollToTopForPageNavigation}
+              className="relative flex flex-1 flex-col items-center gap-1 py-2"
+            >
               <span
                 className={[
                   'grid size-9 place-items-center rounded-2xl transition duration-200',

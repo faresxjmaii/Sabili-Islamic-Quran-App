@@ -6,6 +6,7 @@ import BottomNav from './components/BottomNav';
 import Footer from './components/Footer';
 import PrayerNotificationScheduler from './components/PrayerNotificationScheduler';
 import QuranMiniPlayer from './components/QuranMiniPlayer';
+import RouteScrollManager from './components/RouteScrollManager';
 import TopNav from './components/TopNav';
 import AboutPage from './pages/About';
 import AdhkarPage from './pages/Adhkar';
@@ -23,6 +24,7 @@ function LocalizedAppShell() {
   return (
     <QuranAudioProvider>
       <Router>
+        <RouteScrollManager />
         <div className="min-h-screen overflow-x-hidden bg-[#07111F] text-[#F8FAFC]">
           <div className="relative min-h-screen overflow-hidden bg-[#07111F]">
             <div className="app-atmosphere pointer-events-none fixed inset-0 z-0" aria-hidden="true" />
