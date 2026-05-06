@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
-import { useState } from 'react';
-import { Bell, BellRing, Volume2 } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { Bell, BellRing, Download, Smartphone, Volume2 } from 'lucide-react';
 import { useSettings } from '../app/useSettings';
 import { cn } from '../utils';
 import { languageOptions, useI18n, type TranslationKey } from '../i18n';
@@ -25,6 +25,11 @@ const alertSoundOptions: Array<{ value: PrayerAlertSound; labelKey: TranslationK
   { value: 'silent', labelKey: 'alertSoundSilent' },
 ];
 
+type BeforeInstallPromptEvent = Event & {
+  prompt: () => Promise<void>;
+  userChoice: Promise<{ outcome: 'accepted' | 'dismissed'; platform: string }>;
+};
+
 export default function SettingsPage() {
   const {
     settings,
@@ -40,6 +45,34 @@ export default function SettingsPage() {
   const { t } = useI18n();
   const [notificationPermission, setNotificationPermission] = useState(() => getNotificationPermission());
   const [soundMessage, setSoundMessage] = useState('');
+  const [installPrompt, setInstallPrompt] = useState<BeforeInstallPromptEvent | null>(null);
+  const [installMessage, setInstallMessage] = useState('');
+  const [isInstalled, setIsInstalled] = useState(() => (
+    window.matchMedia?.('(display-mode: standalone)').matches ||
+    (window.navigator as Navigator & { standalone?: boolean }).standalone === true
+  ));
+
+  useEffect(() => {
+    const handleBeforeInstallPrompt = (event: Event) => {
+      event.preventDefault();
+      setInstallPrompt(event as BeforeInstallPromptEvent);
+      setInstallMessage('');
+    };
+
+    const handleInstalled = () => {
+      setIsInstalled(true);
+      setInstallPrompt(null);
+      setInstallMessage(t('appInstalled'));
+    };
+
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    window.addEventListener('appinstalled', handleInstalled);
+
+    return () => {
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+      window.removeEventListener('appinstalled', handleInstalled);
+    };
+  }, [t]);
 
   const handleReset = () => {
     if (confirm(t('resetConfirm'))) {
@@ -64,6 +97,31 @@ export default function SettingsPage() {
       }
     } catch {
       setSoundMessage(t('alertSoundBlocked'));
+    }
+  };
+
+  const handleInstallApp = async () => {
+    if (isInstalled) {
+      setInstallMessage(t('appInstalled'));
+      return;
+    }
+
+    if (!installPrompt) {
+      setInstallMessage(`${t('installPromptUnavailable')} ${t('iphoneInstallInstructions')}`);
+      return;
+    }
+
+    try {
+      await installPrompt.prompt();
+      const choice = await installPrompt.userChoice;
+      setInstallPrompt(null);
+      setInstallMessage(
+        choice.outcome === 'accepted'
+          ? t('appInstalled')
+          : t('iphoneInstallInstructions')
+      );
+    } catch {
+      setInstallMessage(t('iphoneInstallInstructions'));
     }
   };
 
@@ -157,6 +215,28 @@ export default function SettingsPage() {
           <option value={0}>{t('shafiMadhhab')}</option>
           <option value={1}>{t('hanafiMadhhab')}</option>
         </select>
+      </section>
+
+      <section className="rounded-xl border border-white/10 bg-[#0F2438]/85 p-4 shadow-[0_20px_55px_rgba(0,0,0,0.18)]">
+        <div className="mb-4 flex items-start gap-3">
+          <span className="grid size-11 shrink-0 place-items-center rounded-2xl border border-[#10B981]/25 bg-[#10B981]/10 text-[#A7F3D0]">
+            <Smartphone className="size-5" />
+          </span>
+          <div>
+            <h2 className="font-semibold text-white">{t('installApp')}</h2>
+            <p className="mt-1 text-sm leading-6 text-[#B8C4D6]">{t('iphoneInstallInstructions')}</p>
+          </div>
+        </div>
+        <button
+          onClick={handleInstallApp}
+          disabled={isInstalled}
+          className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-2xl border border-[#F2C66D]/35 bg-[#D9B45A]/12 px-4 text-sm font-bold text-[#F2C66D] transition hover:bg-[#D9B45A]/18 disabled:cursor-default disabled:opacity-60 sm:w-auto"
+          type="button"
+        >
+          <Download className="size-4" />
+          {t('installApp')}
+        </button>
+        {installMessage ? <p className="mt-3 text-sm leading-6 text-[#F4E7C5]">{installMessage}</p> : null}
       </section>
 
       <section className="rounded-xl border border-white/10 bg-[#0F2438]/85 p-4 shadow-[0_20px_55px_rgba(0,0,0,0.18)]">

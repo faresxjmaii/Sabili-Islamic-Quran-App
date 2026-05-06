@@ -1,10 +1,11 @@
 {
-  "name": "Sabili",
+  "name": "Sabili | Islamic Quran App",
   "short_name": "Sabili",
-  "description": "Sabili is an Islamic Quran app with prayer times, Adhkar, Qibla direction, and daily prayer reminders.",
+  "description": "Sabili is an Islamic Quran app with prayer times, Adhkar, Qibla direction, reminders, and Quran audio.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
+  "orientation": "portrait-primary",
   "background_color": "#07111F",
   "theme_color": "#07111F",
   "icons": [
@@ -12,13 +13,25 @@
       "src": "/brand/sabili-pwa-icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
     },
     {
       "src": "/brand/sabili-pwa-icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
+    },
+    {
+      "src": "/brand/sabili-maskable-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/brand/sabili-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
     }
   ]
 }
