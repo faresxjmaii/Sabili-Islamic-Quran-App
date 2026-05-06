@@ -28,7 +28,7 @@ const RUB_EL_HIZB = '\u06DE';
 
 type QuranReaderLocationState = {
   targetVerseKey?: string;
-  focusNonce?: number;
+  focusNonce?: number | string;
 };
 
 function getCleanAyahText(text: string): string {
