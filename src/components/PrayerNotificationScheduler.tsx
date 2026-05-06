@@ -90,7 +90,7 @@ export default function PrayerNotificationScheduler() {
           try {
             new Notification(message, {
               body: t('notificationBestResults'),
-              icon: '/brand/sabili-icon-192.png',
+      icon: '/brand/sabili-pwa-icon-192.png',
               tag: scheduleId,
             });
           } catch {
