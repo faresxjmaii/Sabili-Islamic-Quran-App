@@ -36,13 +36,13 @@ function normalizeDegrees(value: number) {
   return ((value % 360) + 360) % 360;
 }
 
-function signedAngleDifference(target: number, current: number) {
-  return ((target - current + 540) % 360) - 180;
+function getAngleDifference(qiblaBearing: number, phoneHeading: number) {
+  return ((qiblaBearing - phoneHeading + 540) % 360) - 180;
 }
 
 function smoothHeading(previous: number | null, next: number) {
   if (previous === null) return next;
-  const delta = signedAngleDifference(next, previous);
+  const delta = getAngleDifference(next, previous);
   return normalizeDegrees(previous + delta * 0.18);
 }
 
@@ -135,7 +135,7 @@ export default function QiblaPage() {
     [location]
   );
   const angleToQibla = bearing !== null && heading !== null
-    ? signedAngleDifference(bearing, heading)
+    ? getAngleDifference(bearing, heading)
     : null;
   const qiblaMarkerRotation = angleToQibla ?? 0;
   const compassRingRotation = heading === null ? 0 : -heading;
@@ -338,6 +338,11 @@ export default function QiblaPage() {
           >
             <div className="absolute inset-0 bg-pattern opacity-50" />
             <div className="relative grid size-[300px] place-items-center rounded-full border border-[#D9B45A]/25 bg-[#07111F]/70 shadow-[inset_0_0_70px_rgba(16,185,129,0.10),0_0_70px_rgba(16,185,129,0.10)] sm:size-[390px]">
+              <div className="absolute inset-0">
+                <div className="absolute left-1/2 top-[8%] h-[43%] w-1 origin-bottom -translate-x-1/2 rounded-full bg-white/25" />
+                <Navigation className="absolute left-1/2 top-[5%] size-7 -translate-x-1/2 fill-white/80 text-white/80 drop-shadow-[0_0_18px_rgba(255,255,255,0.22)]" />
+              </div>
+
               <motion.div
                 animate={{ rotate: compassRingRotation }}
                 transition={{ type: 'spring', stiffness: 80, damping: 18 }}
@@ -381,10 +386,21 @@ export default function QiblaPage() {
               <p className={`${isRtl ? 'label-ui-ar no-arabic-uppercase text-[13px]' : 'text-sm font-semibold uppercase tracking-[0.2em]'} ${isAligned ? 'text-[#10B981]' : 'text-[#D9B45A]'}`}>
                 {turnLabel}
               </p>
-              <p className="mt-2 text-4xl font-bold tabular-nums text-white">
-                {bearing === null ? '--' : `${Math.round(bearing)}°`}
-              </p>
-              <p className="mt-2 text-sm text-[#B8C4D6]">
+              <div className="mt-5 grid gap-3 text-left sm:grid-cols-3 rtl:text-right">
+                <div className="rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3">
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#7D8DA3]">{t('qiblaBearing')}</p>
+                  <p className="mt-1 text-2xl font-bold tabular-nums text-white">{bearing === null ? '--' : `${Math.round(bearing)}°`}</p>
+                </div>
+                <div className="rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3">
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#7D8DA3]">{t('qiblaCurrentHeading')}</p>
+                  <p className="mt-1 text-2xl font-bold tabular-nums text-white">{heading === null ? '--' : `${Math.round(heading)}°`}</p>
+                </div>
+                <div className="rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3">
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#7D8DA3]">{t('qiblaAngleDifference')}</p>
+                  <p className="mt-1 text-2xl font-bold tabular-nums text-white">{angleToQibla === null ? '--' : `${Math.round(angleToQibla)}°`}</p>
+                </div>
+              </div>
+              <p className="mt-4 text-sm text-[#B8C4D6]">
                 {heading === null ? t('qiblaNeedCompass') : t('bearingWithCompass')}
               </p>
             </div>
