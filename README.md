@@ -6,7 +6,15 @@ Your daily path to prayer, Quran and dhikr.
 
 Il tuo percorso quotidiano per preghiera, Corano e dhikr.
 
-Live app: [https://sabili.vercel.app](https://sabili.vercel.app)
+Live app: [https://al-iselm-nour.vercel.app](https://al-iselm-nour.vercel.app)
+
+## Screenshots
+
+![Sabili desktop home](screenshots/home-desktop.png)
+
+| Mobile home | Quran browser |
+| --- | --- |
+| ![Sabili mobile home](screenshots/home-mobile.png) | ![Sabili Quran browser](screenshots/quran.png) |
 
 ## Features
 
@@ -86,3 +94,7 @@ The app currently uses public API endpoints and does not require private API key
 Fares Jmaii
 
 GitHub: [faresxjmaii](https://github.com/faresxjmaii)
+
+## Licensing
+
+No open-source license has been added. The project uses public Quran, prayer-time, font, and audio sources that require separate attribution and licensing review before reuse.
